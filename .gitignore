@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+reset-admin-password.mjs
+
+# Local backups and credentials
+*.backup-*
+*.bak
+*.backup*
