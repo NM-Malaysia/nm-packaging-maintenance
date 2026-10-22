@@ -7,7 +7,7 @@ export function maintenanceBack(value?: string): string {
     if (url.origin !== "https://maintenance.invalid"
         || url.pathname !== "/maintenance") return "/maintenance";
     const clean = new URLSearchParams();
-    for (const key of ["q", "tab", "status", "department", "member", "from", "to", "page"]) {
+    for (const key of ["q", "tab", "status", "department", "member", "from", "to", "page", "priority", "sort"]) {
       const item = url.searchParams.get(key);
       if (item) clean.set(key, item);
     }

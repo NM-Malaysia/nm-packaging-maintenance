@@ -1,4 +1,49 @@
 import Link from "next/link";
+import { revalidatePath } from "next/cache";
+import { maintenanceBack } from "./maintenanceNavigation";
+
+const priorityLabels: Record<string, string> = {
+  "1": "Urgent", "2": "High", "3": "Normal", "4": "Low",
+};
+
+const sortLabels: Record<string, string> = {
+  oldest: "Oldest submitted first",
+  newest: "Newest submitted first",
+  priority: "Highest priority first",
+  idle: "No update longest — open MRFs",
+  progress: "In Progress longest",
+};
+
+async function changePriority(formData: FormData) {
+  "use server";
+
+  const requestId = String(formData.get("request_id") ?? "");
+  const priority = String(formData.get("priority") ?? "");
+  const back = maintenanceBack(String(formData.get("back") ?? ""));
+  const target = new URL(back, "https://maintenance.invalid");
+  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+  if (!uuid.test(requestId) || !/^[1-4]$/.test(priority)) {
+    target.searchParams.set("result", "priority_invalid");
+    redirect(target.pathname + target.search);
+  }
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { error } = await supabase.rpc("set_mrf_priority", {
+    p_request: requestId,
+    p_priority: Number(priority),
+  });
+
+  if (error) console.error("Priority update failed:", error.message);
+  revalidatePath("/maintenance", "layout");
+  target.searchParams.set("result",
+    error ? "priority_failed" : "priority_saved");
+  redirect(target.pathname + target.search);
+}
+
 import { Suspense } from "react";
 import { connection } from "next/server";
 import { redirect } from "next/navigation";
@@ -13,6 +58,9 @@ type RequestRow = {
   description: string;
   status: string;
   submitted_at: string;
+  priority: number;
+  mrf_last_activity: string | null;
+  mrf_in_progress_since: string | null;
 };
 type Member = {
   request_id: string;
@@ -72,6 +120,12 @@ async function MaintenanceList({ searchParams }: { searchParams: Promise<Query> 
   const q = value("q").trim().slice(0, 100);
   const department = value("department").trim().slice(0, 100);
   const status = value("status");
+  const priority = /^[1-4]$/.test(value("priority"))
+    ? value("priority") : "";
+  const sort = Object.keys(sortLabels).includes(value("sort"))
+    ? value("sort") : "oldest";
+  const canManagePriority = ["admin", "maintenance_supervisor"]
+    .includes(employee.role);
   const from = value("from");
   const to = value("to");
   const validDate = (text: string) => {
@@ -87,7 +141,7 @@ async function MaintenanceList({ searchParams }: { searchParams: Promise<Query> 
     : uuid.test(value("member")) ? value("member") : "";
 
   const saved = new URLSearchParams();
-  for (const key of ["q", "tab", "status", "department", "member", "from", "to"]) {
+  for (const key of ["q", "tab", "status", "department", "member", "from", "to", "priority", "sort"]) {
     const item = value(key);
     if (item) saved.set(key, item);
   }
@@ -107,7 +161,7 @@ async function MaintenanceList({ searchParams }: { searchParams: Promise<Query> 
     : tab === "completed" ? ["repair_completed", "handover_pending", "closed"]
     : active;
 
-  const columns = "id,mrf_number,machine_name,department,description,status,submitted_at";
+  const columns = "id,mrf_number,machine_name,department,description,status,submitted_at,priority,mrf_last_activity,mrf_in_progress_since";
   let query = supabase.from("maintenance_requests").select(
     member ? columns + ",request_team_members!inner(employee_id)" : columns,
     { count: "exact" }
@@ -127,8 +181,21 @@ async function MaintenanceList({ searchParams }: { searchParams: Promise<Query> 
   if (validDate(from)) query = query.gte("submitted_at", from + "T00:00:00+08:00");
   if (validDate(to)) query = query.lte("submitted_at", to + "T23:59:59.999999+08:00");
 
+  if (priority) query = query.eq("priority", Number(priority));
+  if (sort === "idle") {
+    query = query.neq("status", "closed")
+      .order("mrf_last_activity", { ascending: true, nullsFirst: false });
+  }
+  if (sort === "progress") {
+    query = query.eq("status", "in_progress")
+      .order("mrf_in_progress_since", { ascending: true, nullsFirst: false });
+  }
+  if (sort === "priority") {
+    query = query.order("priority", { ascending: true });
+  }
+
   const result = await query
-    .order("submitted_at", { ascending: true })
+    .order("submitted_at", { ascending: sort !== "newest" })
     .order("id", { ascending: true })
     .range((current - 1) * size, current * size - 1);
   const requests = (result.data ?? []) as unknown as RequestRow[];
@@ -163,6 +230,18 @@ async function MaintenanceList({ searchParams }: { searchParams: Promise<Query> 
   }
   if (member && !people.has(member)) people.set(member, "Selected team member");
 
+  const loadedAt = Date.now();
+  function elapsed(value: string | null) {
+    if (!value) return "Unavailable";
+    const timestamp = new Date(value).getTime();
+    if (!Number.isFinite(timestamp)) return "Unavailable";
+    const minutes = Math.floor(Math.max(0, loadedAt - timestamp) / 60000);
+    if (minutes < 60) return `${minutes}m`;
+    const hours = Math.floor(minutes / 60);
+    return hours < 24 ? `${hours}h ${minutes % 60}m`
+      : `${Math.floor(hours / 24)}d ${hours % 24}h`;
+  }
+
   const field = "mt-1 w-full rounded-lg border border-slate-300 bg-white p-2 text-sm";
 
   return (
@@ -173,6 +252,16 @@ async function MaintenanceList({ searchParams }: { searchParams: Promise<Query> 
         <p className="mt-2 text-slate-600">
           {employee.full_name} · {employee.role.replaceAll("_", " ")}
         </p>
+        {value("result") === "priority_saved" && (
+          <p role="status" className="mt-4 rounded-lg bg-green-50 p-3 text-green-800">
+            Priority saved.
+          </p>
+        )}
+        {["priority_failed", "priority_invalid"].includes(value("result")) && (
+          <p role="alert" className="mt-4 rounded-lg bg-red-50 p-3 text-red-800">
+            Priority could not be saved. Refresh and try again.
+          </p>
+        )}
         <nav aria-label="Job categories" className="mt-6 flex flex-wrap gap-2">
           {tabs.map(([key, title]) => (
             <Link key={key}
@@ -188,6 +277,21 @@ async function MaintenanceList({ searchParams }: { searchParams: Promise<Query> 
         <form action="/maintenance" method="get"
           className="mt-5 grid gap-4 rounded-xl border bg-white p-5 sm:grid-cols-2 lg:grid-cols-4">
           <input type="hidden" name="tab" value={tab} />
+          <label className="text-sm font-medium">Priority
+            <select name="priority" defaultValue={priority} className={field}>
+              <option value="">All priorities</option>
+              {Object.entries(priorityLabels).map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+          </label>
+          <label className="text-sm font-medium">Sort by
+            <select name="sort" defaultValue={sort} className={field}>
+              {Object.entries(sortLabels).map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+          </label>
           <label className="text-sm font-medium">Search MRF / machine / description
             <input name="q" defaultValue={q} maxLength={100}
               placeholder="11234 or Fuji9" className={field} />
@@ -229,6 +333,13 @@ async function MaintenanceList({ searchParams }: { searchParams: Promise<Query> 
           </div>
         </form>
 
+        <p className="mt-3 text-sm text-slate-600">
+          No update measures time since recorded activity, including priority changes.
+          It does not mean nobody is working. In Progress includes paused time.
+          Refresh to update durations.
+          {sort === "idle" && " Closed MRFs are excluded."}
+          {sort === "progress" && " Only In Progress MRFs are shown within the selected tab and filters."}
+        </p>
         {tab === "review" && (
           <p className="mt-3 text-sm text-slate-600">
             Repairs awaiting final approval or handover. Individual task reviews are inside each MRF.
@@ -252,13 +363,13 @@ async function MaintenanceList({ searchParams }: { searchParams: Promise<Query> 
             <div className="mt-5 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-600">
               <p>{total === 0 ? "No matching MRFs" :
                 `Showing ${(current - 1) * size + 1}–${Math.min(current * size, total)} of ${total} MRFs`}</p>
-              <p>Oldest first · 20 per page</p>
+              <p>{sortLabels[sort]} · 20 per page</p>
             </div>
             <div className="mt-3 overflow-x-auto rounded-xl border bg-white shadow-sm">
               <table className="w-full text-left text-sm">
                 <thead className="bg-slate-50 text-slate-600">
                   <tr>
-                    {["MRF / Machine", "Department", "Status", "Assigned team", "Submitted", ""].map(
+                    {["MRF / Machine", "Department", "Status", "Priority", "Assigned team", "Submitted", "Activity / Time", ""].map(
                       (title, index) => <th key={index} className="px-4 py-3 font-semibold">{title}</th>
                     )}
                   </tr>
@@ -287,6 +398,29 @@ async function MaintenanceList({ searchParams }: { searchParams: Promise<Query> 
                             )}
                           </span>
                         </td>
+                        <td className="min-w-40 px-4 py-4">
+                          {canManagePriority && request.status !== "closed" ? (
+                            <form action={changePriority} className="space-y-2">
+                              <input type="hidden" name="request_id" value={request.id} />
+                              <input type="hidden" name="back" value={back} />
+                              <select name="priority"
+                                aria-label={"Priority for MRF " + request.mrf_number}
+                                defaultValue={String(request.priority)}
+                                className={field}>
+                                {Object.entries(priorityLabels).map(([value, label]) => (
+                                  <option key={value} value={value}>{label}</option>
+                                ))}
+                              </select>
+                              <button className="rounded-lg bg-blue-700 px-3 py-2 text-xs font-semibold text-white">
+                                Save priority
+                              </button>
+                            </form>
+                          ) : (
+                            <span className="font-semibold">
+                              {priorityLabels[String(request.priority)] ?? "Normal"}
+                            </span>
+                          )}
+                        </td>
                         <td className="min-w-40 px-4 py-4 text-slate-600">
                           {teamResult.error ? "Could not load team" :
                             members.map(person => person.full_name).join(", ") || "Not assigned"}
@@ -296,6 +430,22 @@ async function MaintenanceList({ searchParams }: { searchParams: Promise<Query> 
                             timeZone: "Asia/Kuala_Lumpur",
                           })}
                         </td>
+                        <td className="min-w-44 px-4 py-4 text-xs text-slate-600">
+                          <p>
+                            {request.status === "closed" ? "Last activity: " : "No update: "}
+                            {request.status === "closed"
+                              ? (request.mrf_last_activity
+                                ? new Date(request.mrf_last_activity).toLocaleString(
+                                    "en-MY", { timeZone: "Asia/Kuala_Lumpur" })
+                                : "Unavailable")
+                              : elapsed(request.mrf_last_activity)}
+                          </p>
+                          {request.status === "in_progress" && (
+                            <p className="mt-2">
+                              In Progress: {elapsed(request.mrf_in_progress_since)}
+                            </p>
+                          )}
+                        </td>
                         <td className="px-4 py-4">
                           <Link href={href} className="inline-block rounded-lg bg-blue-700 px-4 py-2 font-semibold text-white">
                             Open
@@ -304,7 +454,7 @@ async function MaintenanceList({ searchParams }: { searchParams: Promise<Query> 
                       </tr>
                     );
                   })}
-                  {!requests.length && <tr><td colSpan={6} className="p-8 text-center text-slate-500">
+                  {!requests.length && <tr><td colSpan={8} className="p-8 text-center text-slate-500">
                     No MRFs match these filters.
                   </td></tr>}
                 </tbody>
