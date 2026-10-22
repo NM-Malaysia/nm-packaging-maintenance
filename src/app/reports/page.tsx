@@ -91,7 +91,7 @@ async function Reports({ searchParams }: { searchParams: Promise<Query> }) {
     p_to: to || null,
   });
   const report = result?.data as Report | null;
-  const field = "mt-2 block w-full rounded-lg border border-slate-300 bg-white p-3";
+  const field = "mt-2 block min-w-0 w-full max-w-full box-border appearance-none rounded-lg border border-slate-300 bg-white p-3 text-base [&::-webkit-date-and-time-value]:text-left";
 
   return (
     <main className="min-h-screen bg-slate-100 px-4 py-8 text-slate-900 sm:px-6">
@@ -104,12 +104,12 @@ async function Reports({ searchParams }: { searchParams: Promise<Query> }) {
 
         <form action="/reports" method="get"
           className="mt-6 grid gap-4 rounded-xl border bg-white p-5 sm:grid-cols-3">
-          <label className="text-sm font-medium">
+          <label className="min-w-0 text-sm font-medium">
             MRF submitted from — Malaysia date
             <input type="date" name="from"
               defaultValue={validDate(from) ? from : ""} className={field} />
           </label>
-          <label className="text-sm font-medium">
+          <label className="min-w-0 text-sm font-medium">
             MRF submitted to — Malaysia date
             <input type="date" name="to"
               defaultValue={validDate(to) ? to : ""} className={field} />

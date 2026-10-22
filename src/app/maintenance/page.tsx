@@ -242,10 +242,10 @@ async function MaintenanceList({ searchParams }: { searchParams: Promise<Query> 
       : `${Math.floor(hours / 24)}d ${hours % 24}h`;
   }
 
-  const field = "mt-1 w-full rounded-lg border border-slate-300 bg-white p-2 text-sm";
+  const field = "mt-1 block min-w-0 w-full max-w-full box-border rounded-lg border border-slate-300 bg-white p-2 text-base text-slate-900 placeholder:text-slate-500 sm:text-sm";
 
   return (
-    <main className="min-h-screen bg-slate-100 px-4 py-8 sm:px-6">
+    <main className="min-h-screen bg-slate-100 px-4 py-8 text-slate-900 sm:px-6">
       <div className="mx-auto max-w-7xl">
         <Link href="/" className="text-blue-700 hover:underline">← Dashboard</Link>
         <h1 className="mt-5 text-3xl font-bold text-slate-900">Maintenance Team</h1>
@@ -277,7 +277,7 @@ async function MaintenanceList({ searchParams }: { searchParams: Promise<Query> 
         <form action="/maintenance" method="get"
           className="mt-5 grid gap-4 rounded-xl border bg-white p-5 sm:grid-cols-2 lg:grid-cols-4">
           <input type="hidden" name="tab" value={tab} />
-          <label className="text-sm font-medium">Priority
+          <label className="min-w-0 text-sm font-medium text-slate-900">Priority
             <select name="priority" defaultValue={priority} className={field}>
               <option value="">All priorities</option>
               {Object.entries(priorityLabels).map(([value, label]) => (
@@ -285,28 +285,28 @@ async function MaintenanceList({ searchParams }: { searchParams: Promise<Query> 
               ))}
             </select>
           </label>
-          <label className="text-sm font-medium">Sort by
+          <label className="min-w-0 text-sm font-medium text-slate-900">Sort by
             <select name="sort" defaultValue={sort} className={field}>
               {Object.entries(sortLabels).map(([value, label]) => (
                 <option key={value} value={value}>{label}</option>
               ))}
             </select>
           </label>
-          <label className="text-sm font-medium">Search MRF / machine / description
+          <label className="min-w-0 text-sm font-medium text-slate-900">Search MRF / machine / description
             <input name="q" defaultValue={q} maxLength={100}
               placeholder="11234 or Fuji9" className={field} />
           </label>
-          <label className="text-sm font-medium">Status
+          <label className="min-w-0 text-sm font-medium text-slate-900">Status
             <select name="status" defaultValue={statuses.includes(status) ? status : ""} className={field}>
               <option value="">All statuses in this tab</option>
               {statuses.map(item => <option key={item} value={item}>{labels[item]}</option>)}
             </select>
           </label>
-          <label className="text-sm font-medium">Department
+          <label className="min-w-0 text-sm font-medium text-slate-900">Department
             <input name="department" defaultValue={department}
               placeholder="Department name" maxLength={100} className={field} />
           </label>
-          <label className="text-sm font-medium">Assigned person
+          <label className="min-w-0 text-sm font-medium text-slate-900">Assigned person
             {tab === "my" ? (
               <>
                 <input type="hidden" name="member" value={user.id} />
@@ -319,11 +319,15 @@ async function MaintenanceList({ searchParams }: { searchParams: Promise<Query> 
               </select>
             )}
           </label>
-          <label className="text-sm font-medium">Submitted from — Malaysia date
-            <input type="date" name="from" defaultValue={validDate(from) ? from : ""} className={field} />
+          <label className="min-w-0 text-sm font-medium text-slate-900">Submitted from — Malaysia date
+            <input type="date"
+              style={{ minWidth: 0, width: "100%", maxWidth: "100%",
+                boxSizing: "border-box", WebkitAppearance: "none" }} name="from" defaultValue={validDate(from) ? from : ""} className={field} />
           </label>
-          <label className="text-sm font-medium">Submitted to — Malaysia date
-            <input type="date" name="to" defaultValue={validDate(to) ? to : ""} className={field} />
+          <label className="min-w-0 text-sm font-medium text-slate-900">Submitted to — Malaysia date
+            <input type="date"
+              style={{ minWidth: 0, width: "100%", maxWidth: "100%",
+                boxSizing: "border-box", WebkitAppearance: "none" }} name="to" defaultValue={validDate(to) ? to : ""} className={field} />
           </label>
           <div className="flex items-end gap-4">
             <button className="rounded-lg bg-blue-700 px-5 py-2 font-semibold text-white">

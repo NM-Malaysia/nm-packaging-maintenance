@@ -34,9 +34,9 @@ const features = [
   },
   {
     icon: "📦",
-    title: "Spare Parts Inventory",
+    title: "Parts Follow-up & MIV",
     description:
-      "Track stock quantities, parts usage, and replenishment.",
+      "Track part requests, purchase follow-up, issue dates, and MIV records across MRFs.",
   },
   {
     icon: "📊",
@@ -93,6 +93,8 @@ const allowedRoles = [
 if (employee.must_change_password === true) {
   redirect("/change-password");
 }
+
+const canManageParts = ["admin", "maintenance_clerk"].includes(employee.role);
 
 const canSubmit = ["requestor", "department_hod"].includes(employee.role);
 const canOpenMaintenance = [
@@ -207,6 +209,10 @@ const requestLoadError =
         <section className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {features
   .filter((feature) => {
+  if (feature.title === "Parts Follow-up & MIV") {
+    return canManageParts;
+  }
+
   if (employee.role === "admin") {
     return true;
   }
@@ -215,7 +221,7 @@ const requestLoadError =
     return [
       "Maintenance Team",
       "Machine Register",
-      "Spare Parts Inventory",
+      "Parts Follow-up & MIV",
     ].includes(feature.title);
   }
 
@@ -256,6 +262,11 @@ const requestLoadError =
                     Available to maintenance staff
                   </span>
                 )
+              ) : feature.title === "Parts Follow-up & MIV" ? (
+                <Link href="/parts-followup"
+                  className="mt-5 inline-block font-semibold text-blue-700 hover:underline">
+                  Open parts follow-up & MIV →
+                </Link>
               ) : feature.title === "Reports & Dashboard" ? (
                 ["admin", "maintenance_supervisor"].includes(employee.role) ? (
                   <Link href="/reports"
@@ -312,8 +323,29 @@ const requestLoadError =
           )}
 
           {!recentResult.error && (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
+            <div>
+              <div className="divide-y divide-slate-200 text-slate-900 sm:hidden">
+                {(recentResult.data ?? []).map((request) => (
+                  <article key={request.id} className="space-y-3 p-5">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <h3 className="font-bold text-blue-800">
+                        MRF {request.mrf_number} · {request.machine_name}
+                      </h3>
+                      <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold capitalize text-blue-800">
+                        {request.status.replaceAll("_", " ")}
+                      </span>
+                    </div>
+                    <p className="text-sm text-slate-700">{request.department}</p>
+                    <p className="text-sm text-slate-600">
+                      Submitted: {new Date(request.submitted_at).toLocaleString(
+                        "en-MY", { timeZone: "Asia/Kuala_Lumpur" }
+                      )} (Malaysia time)
+                    </p>
+                  </article>
+                ))}
+              </div>
+              <div className="hidden overflow-x-auto sm:block">
+              <table className="w-full text-left text-sm text-slate-900">
                 <thead className="bg-slate-50 text-slate-700">
                   <tr>
                     <th className="p-4">MRF No.</th>
@@ -341,6 +373,7 @@ const requestLoadError =
                   ))}
                 </tbody>
               </table>
+              </div>
               {recentResult.data?.length === 0 && (
                 <p className="p-6 text-slate-500">
                   No requests are visible under your account permissions.

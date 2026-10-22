@@ -1,3 +1,4 @@
+import PartsFollowup from "./PartsFollowup";
 import TemporaryRepair from "./TemporaryRepair";
 import Handover from "./Handover";
 import RepairApprovals from "./RepairApprovals";
@@ -168,6 +169,11 @@ async function MaintenanceContent({
   }
 
   const messages: Record<string, string> = {
+    parts_requested: "Part requested. Pending maintenance clerk check.",
+    parts_saved: "Part record saved.",
+    parts_invalid: "Check the part fields, dates and MIV requirements.",
+    parts_failed: "Part record could not be saved. Check dates, permissions and whether the record is locked.",
+
     temporary_recorded: "Temporary repair recorded. Machine restart saved, permanent-repair task assigned and follow-up pending.",
     temporary_resolved: "Permanent repair follow-up resolved. You can proceed to Overall Repair Completion when all work is ready.",
     temporary_invalid: "Complete the temporary repair details, responsible person, dates and confirmation.",
@@ -331,6 +337,8 @@ async function MaintenanceContent({
                   )}
 
                   <TemporaryRepair requestId={request.id} status={request.status} />
+
+                  <PartsFollowup requestId={request.id} status={request.status} />
 
                   <JobTasks requestId={request.id} status={request.status} />
 
