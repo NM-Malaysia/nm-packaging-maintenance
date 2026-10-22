@@ -256,6 +256,17 @@ const requestLoadError =
                     Available to maintenance staff
                   </span>
                 )
+              ) : feature.title === "Reports & Dashboard" ? (
+                ["admin", "maintenance_supervisor"].includes(employee.role) ? (
+                  <Link href="/reports"
+                    className="mt-5 inline-block font-semibold text-blue-700 hover:underline">
+                    Open maintenance reports →
+                  </Link>
+                ) : (
+                  <span className="mt-5 inline-block text-sm text-slate-500">
+                    Available to Admin and Maintenance Supervisor
+                  </span>
+                )
               ) : feature.title === "Employee Management" ? (
                 <Link
                   href="/admin/employees"
