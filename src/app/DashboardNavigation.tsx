@@ -1,3 +1,4 @@
+import { NotificationBell } from "./MyActions";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
@@ -50,6 +51,7 @@ export default function DashboardNavigation({
               Employees
             </Link>
           )}
+          <NotificationBell />
           <form action={signOut}>
             <button type="submit"
               className="rounded-lg border border-slate-300 px-4 py-2 hover:bg-slate-100">

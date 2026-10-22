@@ -1,3 +1,4 @@
+import MyActions from "./MyActions";
 
 import Link from "next/link";
 import DashboardNavigation from "./DashboardNavigation";
@@ -157,6 +158,8 @@ const requestLoadError =
         </section>
 
         
+        <MyActions compact />
+
         {allowedRoles.includes(employee.role) && (
           <nav aria-label="Quick actions"
             className="mb-8 grid gap-3 sm:max-w-4xl sm:grid-cols-2 lg:grid-cols-4">

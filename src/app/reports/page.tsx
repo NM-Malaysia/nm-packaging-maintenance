@@ -1,3 +1,4 @@
+import PartsReport from "./PartsReport";
 import Link from "next/link";
 import { Suspense } from "react";
 import { connection } from "next/server";
@@ -236,6 +237,8 @@ async function Reports({ searchParams }: { searchParams: Promise<Query> }) {
                 </table>
               </div>
             </section>
+
+            <PartsReport from={from} to={to} />
 
             <p className="mt-5 text-sm text-slate-600">
               Lead times use elapsed calendar hours, including waiting and pauses.
