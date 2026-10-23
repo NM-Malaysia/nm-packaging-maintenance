@@ -118,6 +118,60 @@ const translations: Record<string, Record<string, string>> = {
   }
 };
 
+// Employee registration API message translations
+Object.assign(translations, {
+  "Please log in first.": {
+    "ms": "Sila log masuk dahulu.",
+    "zh": "请先登录。",
+    "ne": "कृपया पहिले साइन इन गर्नुहोस्।"
+  },
+  "Admin access required.": {
+    "ms": "Akses pentadbir diperlukan.",
+    "zh": "需要管理员权限。",
+    "ne": "प्रशासकको पहुँच आवश्यक छ।"
+  },
+  "Invalid employee details or password.": {
+    "ms": "Butiran pekerja atau kata laluan tidak sah.",
+    "zh": "员工资料或密码无效。",
+    "ne": "कर्मचारी विवरण वा पासवर्ड अमान्य छ।"
+  },
+  "Server configuration error.": {
+    "ms": "Ralat konfigurasi pelayan.",
+    "zh": "服务器配置错误。",
+    "ne": "सर्भर कन्फिगरेसन त्रुटि।"
+  },
+  "Employee ID already exists.": {
+    "ms": "ID pekerja sudah wujud.",
+    "zh": "此员工编号已存在。",
+    "ne": "कर्मचारी नम्बर पहिले नै छ।"
+  },
+  "Invalid or inactive department.": {
+    "ms": "Jabatan tidak sah atau tidak aktif.",
+    "zh": "部门无效或已停用。",
+    "ne": "विभाग अमान्य वा निष्क्रिय छ।"
+  },
+  "Unable to create employee account.": {
+    "ms": "Akaun pekerja tidak dapat dicipta.",
+    "zh": "无法创建员工账号。",
+    "ne": "कर्मचारी खाता सिर्जना गर्न सकिएन।"
+  },
+  "Unable to save employee details.": {
+    "ms": "Butiran pekerja tidak dapat disimpan.",
+    "zh": "无法保存员工资料。",
+    "ne": "कर्मचारी विवरण बचत गर्न सकिएन।"
+  },
+  "An unexpected server error occurred.": {
+    "ms": "Ralat pelayan tidak dijangka berlaku.",
+    "zh": "发生意外服务器错误。",
+    "ne": "सर्भरमा अनपेक्षित त्रुटि भयो।"
+  },
+  "Employee registered successfully. Admin activation required.": {
+    "ms": "Pekerja berjaya didaftarkan. Pengaktifan oleh Pentadbir diperlukan.",
+    "zh": "员工已成功登记，需由管理员启用账号。",
+    "ne": "कर्मचारी सफलतापूर्वक दर्ता भयो। प्रशासकबाट सक्रिय गर्न आवश्यक छ।"
+  }
+});
+
 export function createEmployeeText(language: CreateEmployeeLanguage, text: string): string {
   return language === "en" ? text : translations[text]?.[language] ?? text;
 }
