@@ -245,7 +245,7 @@ async function MaintenanceContent({
 
         {params.result && messages[params.result] && (
           <p role="status" className="mt-6 rounded-xl border bg-white p-5">
-            {messages[params.result]}
+            {t(messages[params.result])}
           </p>
         )}
 
