@@ -1,3 +1,5 @@
+import { getMyLanguage } from "@/utils/language";
+import { temporaryRepairText } from "@/utils/temporaryRepairTranslations";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/utils/supabase/server";
@@ -89,6 +91,9 @@ export default async function TemporaryRepair({
     .eq("id", user.id).maybeSingle();
   if (!employee?.is_active || employee.must_change_password) return null;
 
+  const language = await getMyLanguage();
+  const t = (text: string) => temporaryRepairText(language, text);
+
   const canManage = ["admin", "maintenance_supervisor"].includes(employee.role);
   const editable = ["in_progress", "waiting_spare_parts", "follow_up_required"].includes(status);
 
@@ -97,9 +102,7 @@ export default async function TemporaryRepair({
     .eq("request_id", requestId)
     .order("recorded_at", { ascending: false });
 
-  if (result.error) return <p role="alert" className="mt-5 text-red-700">
-    Temporary repair records could not be loaded. Please refresh.
-  </p>;
+  if (result.error) return <p role="alert" className="mt-5 text-red-700">{t("Temporary repair records could not be loaded. Please refresh.")}</p>;
 
   const entries = result.data ?? [];
   const pending = entries.find(item => !item.resolved_at);
@@ -141,36 +144,34 @@ export default async function TemporaryRepair({
 
   return (
     <section className="mt-5 border-t pt-5">
-      <h3 className="text-lg font-semibold">Temporary repair & permanent follow-up</h3>
+      <h3 className="text-lg font-semibold">{t("Temporary repair & permanent follow-up")}</h3>
 
       {entries.map(item => (
         <div key={item.id} className={"mt-4 rounded-lg border p-5 " +
           (item.resolved_at ? "border-green-200 bg-green-50" : "border-amber-300 bg-amber-50")}>
           <h4 className="font-semibold">
-            {item.resolved_at ? "Permanent repair follow-up resolved"
-              : "Temporary Repair — Follow-up Pending"}
+            {item.resolved_at ? t("Permanent repair follow-up resolved")
+              : t("Temporary Repair — Follow-up Pending")}
           </h4>
           <p className="mt-2 whitespace-pre-wrap">{item.temporary_repair_details}</p>
           <p className="mt-3 text-sm">
-            Machine restarted: {time(item.machine_restored_at)} (Malaysia time)
+            {t("Machine restarted:")} {time(item.machine_restored_at)} ({t("Malaysia time")})
           </p>
           <p className="mt-2 text-sm">
-            Responsible: {names.get(item.responsible_employee_id)
-              ?? (namesError ? "Could not load name" : "See linked permanent-repair task")}
+            {t("Responsible:")} {names.get(item.responsible_employee_id)
+              ?? (namesError ? t("Could not load name") : t("See linked permanent-repair task"))}
           </p>
           <p className="mt-2 text-sm">
-            Target date: {item.target_date}
-            {!item.resolved_at && item.target_date < today ? " · OVERDUE" : ""}
+            {t("Target date:")} {item.target_date}
+            {!item.resolved_at && item.target_date < today ? " · " + t("OVERDUE") : ""}
           </p>
           {item.resolved_at ? (
             <>
               <p className="mt-3 whitespace-pre-wrap">{item.resolution_notes}</p>
-              <p className="mt-2 text-sm">Resolved: {time(item.resolved_at)} (Malaysia time)</p>
+              <p className="mt-2 text-sm">{t("Resolved:")} {time(item.resolved_at)} ({t("Malaysia time")})</p>
             </>
           ) : (
-            <p className="mt-3 text-sm font-medium">
-              MRF stays open. Repair completion and closure are blocked until this follow-up is resolved.
-            </p>
+            <p className="mt-3 text-sm font-medium">{t("MRF stays open. Repair completion and closure are blocked until this follow-up is resolved.")}</p>
           )}
         </div>
       ))}
@@ -183,78 +184,63 @@ export default async function TemporaryRepair({
             <input type="hidden" name="followup_id" value={pending.id} />
             <input type="hidden" name="temporary_action" value="resolve" />
             <label className="block">
-              <span className="font-medium">Permanent repair verification notes</span>
+              <span className="font-medium">{t("Permanent repair verification notes")}</span>
               <textarea name="details" rows={3} required maxLength={5000}
                 className="mt-2 block w-full rounded-lg border p-3" />
             </label>
             <label className="flex items-start gap-3">
               <input type="checkbox" name="confirmed" value="yes" required className="mt-1 h-5 w-5" />
-              <span>I verified that the permanent repair is complete and the temporary fix is no longer outstanding.</span>
+              <span>{t("I verified that the permanent repair is complete and the temporary fix is no longer outstanding.")}</span>
             </label>
-            <button className="rounded-lg bg-green-700 px-5 py-3 font-semibold text-white">
-              Resolve Temporary Repair Follow-up
-            </button>
-            <p className="text-sm text-slate-600">
-              Overall Repair Completion remains a separate step.
-            </p>
+            <button className="rounded-lg bg-green-700 px-5 py-3 font-semibold text-white">{t("Resolve Temporary Repair Follow-up")}</button>
+            <p className="text-sm text-slate-600">{t("Overall Repair Completion remains a separate step.")}</p>
           </form>
         ) : (
-          <p className="mt-4 text-sm text-slate-600">
-            Set the MRF to In Progress, complete the linked
-            “Permanent repair after temporary fix” task and confirm its supervisor review.
-            Then return here to resolve the follow-up.
-          </p>
+          <p className="mt-4 text-sm text-slate-600">{t("Set the MRF to In Progress, complete the linked “Permanent repair after temporary fix” task and confirm its supervisor review. Then return here to resolve the follow-up.")}</p>
         )
       )}
 
       {canManage && editable && !pending && (
         <details className="mt-4 rounded-lg border border-amber-300 p-4">
-          <summary className="cursor-pointer font-semibold text-amber-900">
-            + Record Temporary Repair — Machine Restarted
-          </summary>
+          <summary className="cursor-pointer font-semibold text-amber-900">{t("+ Record Temporary Repair — Machine Restarted")}</summary>
           {staffError || !staff.length ? (
-            <p className="mt-3 text-red-700">Maintenance staff list unavailable. Refresh to try again.</p>
+            <p className="mt-3 text-red-700">{t("Maintenance staff list unavailable. Refresh to try again.")}</p>
           ) : (
             <form action={updateTemporaryRepair} className="mt-4 space-y-4">
               <input type="hidden" name="return_to" value={"/maintenance/" + requestId} />
               <input type="hidden" name="request_id" value={requestId} />
               <input type="hidden" name="temporary_action" value="record" />
               <label className="block">
-                <span className="font-medium">Temporary fix, operating limitations and permanent work required</span>
+                <span className="font-medium">{t("Temporary fix, operating limitations and permanent work required")}</span>
                 <textarea name="details" rows={4} required maxLength={5000}
                   className="mt-2 block w-full rounded-lg border p-3" />
               </label>
               <label className="block">
-                <span className="font-medium">Responsible for permanent repair</span>
+                <span className="font-medium">{t("Responsible for permanent repair")}</span>
                 <select name="responsible" required defaultValue=""
                   className="mt-2 block w-full rounded-lg border bg-white p-3">
-                  <option value="" disabled>Select technician or supervisor</option>
+                  <option value="" disabled>{t("Select technician or supervisor")}</option>
                   {staff.map(person => <option key={person.id} value={person.id}>
                     {person.full_name} ({person.employee_id})
                   </option>)}
                 </select>
               </label>
               <label className="block">
-                <span className="font-medium">Permanent repair target date</span>
+                <span className="font-medium">{t("Permanent repair target date")}</span>
                 <input type="date" name="target_date" min={today} required
                   className="mt-2 block rounded-lg border p-3" />
               </label>
               <label className="block">
-                <span className="font-medium">Actual machine restart — Malaysia time</span>
+                <span className="font-medium">{t("Actual machine restart — Malaysia time")}</span>
                 <input type="datetime-local" name="restored_at" required
                   className="mt-2 block rounded-lg border p-3" />
               </label>
               <label className="flex items-start gap-3">
                 <input type="checkbox" name="confirmed" value="yes" required className="mt-1 h-5 w-5" />
-                <span>I verified the restart time and recorded the outstanding permanent repair.</span>
+                <span>{t("I verified the restart time and recorded the outstanding permanent repair.")}</span>
               </label>
-              <p className="text-sm text-slate-600">
-                Pause or finish running work first. Saving creates and assigns a permanent-repair
-                task under this MRF, records the restart and sets Follow-up Required.
-              </p>
-              <button className="rounded-lg bg-amber-700 px-5 py-3 font-semibold text-white">
-                Save Temporary Repair & Follow-up
-              </button>
+              <p className="text-sm text-slate-600">{t("Pause or finish running work first. Saving creates and assigns a permanent-repair task under this MRF, records the restart and sets Follow-up Required.")}</p>
+              <button className="rounded-lg bg-amber-700 px-5 py-3 font-semibold text-white">{t("Save Temporary Repair & Follow-up")}</button>
             </form>
           )}
         </details>
