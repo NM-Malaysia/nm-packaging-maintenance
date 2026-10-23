@@ -1,3 +1,4 @@
+import DashboardNavigation from "../../DashboardNavigation";
 import { getMyLanguage } from "@/utils/language";
 import { newRequestText } from "@/utils/newRequestTranslations";
 import Link from "next/link";
@@ -24,7 +25,9 @@ async function NewRequest() {
     ? await supabase.from("departments").select("name").eq("id", employee.department_id).maybeSingle()
     : { data: null, error: null };
   return (
-    <main className="min-h-screen bg-slate-100 px-4 py-8 text-slate-900">
+    <main className="min-h-screen bg-slate-100 text-slate-900">
+      <DashboardNavigation name={employee.full_name} role={employee.role} />
+      <div className="px-4 py-8 sm:px-6">
       <div className="mx-auto max-w-3xl">
         <Link href="/" className="text-sm font-medium text-blue-700 underline">{t("← Back to dashboard")}</Link>
         <p className="mt-6 text-sm font-semibold text-slate-600">NM PACKAGING (M) SDN. BHD.</p>
@@ -33,6 +36,7 @@ async function NewRequest() {
         {!allowed ? <p role="alert" className="rounded-xl bg-white p-6">{t("Only Requestors and Department HODs can submit MRFs under the current company permissions.")}</p>
           : departmentError || !department ? <p role="alert" className="rounded-xl bg-white p-6">{t("Unable to load your department. Contact your administrator.")}</p>
           : <RequestForm name={employee.full_name} department={department.name} language={language} />}
+      </div>
       </div>
     </main>
   );
