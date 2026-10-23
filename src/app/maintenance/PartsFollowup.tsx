@@ -162,9 +162,11 @@ async function savePart(formData: FormData) {
 }
 
 
-function PartForm({ requestId, part }: { requestId: string; part?: Part }) {
+async function PartForm({ requestId, part }: { requestId: string; part?: Part }) {
+  const language = await getMyLanguage();
   return (
     <PartStatusForm
+      language={language}
       action={savePart}
       requestId={requestId}
       existing={Boolean(part)}

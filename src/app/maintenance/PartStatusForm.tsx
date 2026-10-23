@@ -1,28 +1,34 @@
 "use client";
 
+import { partFormText, type PartFormLanguage } from "@/utils/partFormTranslations";
 import { useState } from "react";
 import { useFormStatus } from "react-dom";
 
 const field = "mt-1 block min-w-0 w-full max-w-full rounded-lg border border-slate-300 bg-white p-3 text-base text-slate-900";
 
-function SaveButton({ existing }: { existing: boolean }) {
+function SaveButton({ existing, language }: {
+  existing: boolean; language: PartFormLanguage;
+}) {
+  const t = (text: string) => partFormText(language, text);
   const { pending } = useFormStatus();
   return (
     <button type="submit" disabled={pending}
       className="rounded-lg bg-blue-700 px-5 py-3 font-semibold text-white disabled:opacity-60">
-      {pending ? "Saving..." : existing ? "Save part update" : "Add part record"}
+      {pending ? t("Saving...") : existing ? t("Save part update") : t("Add part record")}
     </button>
   );
 }
 
 export default function PartStatusForm({
-  action, requestId, existing, initial,
+  action, requestId, existing, initial, language = "en",
 }: {
   action: (data: FormData) => Promise<void>;
   requestId: string;
   existing: boolean;
   initial: Record<string, string>;
+  language?: PartFormLanguage;
 }) {
+  const t = (text: string) => partFormText(language, text);
   const [values, setValues] = useState(initial);
   const status = values.status;
   const purchase = values.source === "purchase";
@@ -48,7 +54,7 @@ export default function PartStatusForm({
   ) {
     return (
       <label className="block min-w-0">
-        {label}
+        {t(label)}
         <input name={name} value={values[name] ?? ""}
           onChange={(event) => set(name, event.target.value)}
           className={field} {...options}
@@ -58,7 +64,7 @@ export default function PartStatusForm({
   }
 
   function date(name: string, label: string, required = false) {
-    return input(name, `${label} — Malaysia time`, {
+    return input(name, `${label} — ${t("Malaysia time")}`, {
       type: "datetime-local", required,
     });
   }
@@ -70,23 +76,19 @@ export default function PartStatusForm({
       <input type="hidden" name="return_to" value={`/maintenance/${requestId}`} />
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <label className="min-w-0">
-          Part status
-          <select name="status" value={status} required className={field}
+        <label className="min-w-0">{t("Part status")}<select name="status" value={status} required className={field}
             onChange={(event) => set("status", event.target.value)}>
-            <option value="waiting">Waiting</option>
-            <option value="available">Available</option>
-            <option value="issued">Issued</option>
-            <option value="cancelled">Cancelled</option>
+            <option value="waiting">{t("Waiting")}</option>
+            <option value="available">{t("Available")}</option>
+            <option value="issued">{t("Issued")}</option>
+            <option value="cancelled">{t("Cancelled")}</option>
           </select>
         </label>
-        <label className="min-w-0">
-          Source
-          <select name="source" value={values.source} required className={field}
+        <label className="min-w-0">{t("Source")}<select name="source" value={values.source} required className={field}
             onChange={(event) => set("source", event.target.value)}>
-            <option value="" disabled>Select confirmed source</option>
-            <option value="store">Store on hand</option>
-            <option value="purchase">Purchase required</option>
+            <option value="" disabled>{t("Select confirmed source")}</option>
+            <option value="store">{t("Store on hand")}</option>
+            <option value="purchase">{t("Purchase required")}</option>
           </select>
         </label>
         {input("part_code", "Confirmed part code", { required: true, maxLength: 100 })}
@@ -100,7 +102,7 @@ export default function PartStatusForm({
 
       {purchase && (
         <fieldset className="grid gap-4 rounded-lg border p-4 sm:grid-cols-2">
-          <legend className="px-2 font-semibold">Purchase follow-up</legend>
+          <legend className="px-2 font-semibold">{t("Purchase follow-up")}</legend>
           {input("purchase_reference", "Purchase reference", { maxLength: 200 })}
           {date("ordered_at", "Actual order time")}
         </fieldset>
@@ -108,14 +110,14 @@ export default function PartStatusForm({
 
       {available && (
         <fieldset className="rounded-lg border p-4">
-          <legend className="px-2 font-semibold">Part availability</legend>
+          <legend className="px-2 font-semibold">{t("Part availability")}</legend>
           {date("available_at", "Actual availability time", true)}
         </fieldset>
       )}
 
       {issued && (
         <fieldset className="grid gap-4 rounded-lg border p-4 sm:grid-cols-2">
-          <legend className="px-2 font-semibold">Issue / MIV details</legend>
+          <legend className="px-2 font-semibold">{t("Issue / MIV details")}</legend>
           {date("issued_at", "Actual issue time", true)}
           {input("miv_number", "MIV number — optional, can be added later", { maxLength: 100 })}
         </fieldset>
@@ -130,15 +132,13 @@ export default function PartStatusForm({
         <input type="hidden" name="available_at" value={initial.available_at ?? ""} />
       )}
 
-      <label className="block">
-        Defect / reason for replacement
-        <textarea name="defect_details" rows={3} maxLength={5000}
+      <label className="block">{t("Defect / reason for replacement")}<textarea name="defect_details" rows={3} maxLength={5000}
           value={values.defect_details}
           onChange={(event) => set("defect_details", event.target.value)}
           className={field} />
       </label>
       <label className="block">
-        {cancelled ? "Cancellation reason — required" : "Follow-up notes"}
+        {cancelled ? t("Cancellation reason — required") : t("Follow-up notes")}
         <textarea name="notes" rows={3} maxLength={5000} required={cancelled}
           value={values.notes}
           onChange={(event) => set("notes", event.target.value)}
@@ -147,20 +147,18 @@ export default function PartStatusForm({
 
       <p className="text-sm text-slate-600" aria-live="polite">
         {status === "waiting"
-          ? "Waiting: availability and issue dates are not submitted."
+          ? t("Waiting: availability and issue dates are not submitted.")
           : status === "available"
-          ? "Available: record when the part actually became available."
+          ? t("Available: record when the part actually became available.")
           : issued
-          ? "Issued: availability and issue times are required. Part details lock after saving; the MIV number can be added later."
-          : "Cancelled: explain why the part is no longer required. Saving locks this record."}
-        {" "}Use actual dates in chronological order.
+          ? t("Issued: availability and issue times are required. Part details lock after saving; the MIV number can be added later.")
+          : t("Cancelled: explain why the part is no longer required. Saving locks this record.")}
+        {" "}{t("Use actual dates in chronological order.")}
       </p>
       {initial.status === "available" && status === "waiting" && (
-        <p role="alert" className="text-sm text-amber-800">
-          Returning to Waiting clears the saved availability date.
-        </p>
+        <p role="alert" className="text-sm text-amber-800">{t("Returning to Waiting clears the saved availability date.")}</p>
       )}
-      <SaveButton existing={existing} />
+      <SaveButton existing={existing} language={language} />
     </form>
   );
 }
