@@ -1,3 +1,5 @@
+import { getMyLanguage } from "@/utils/language";
+import { actionText } from "@/utils/actionTranslations";
 import Link from "next/link";
 import { Suspense } from "react";
 import { connection } from "next/server";
@@ -21,6 +23,10 @@ async function Content({ searchParams }: {
   if (error || !employee?.is_active) redirect("/login?error=access_denied");
   if (employee.must_change_password) redirect("/change-password");
 
+  const language = await getMyLanguage();
+  const t = (text: string, values: Record<string, string | number> = {}) =>
+    actionText(language, text, values);
+
   const params = await searchParams;
   const rawPage = typeof params.page === "string" ? params.page : "1";
   const page = Math.max(1, Math.min(100000, Number.parseInt(rawPage, 10) || 1));
@@ -29,12 +35,11 @@ async function Content({ searchParams }: {
     <main className="min-h-screen bg-slate-100 text-slate-900">
       <DashboardNavigation name={employee.full_name} role={employee.role} />
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        <Link href="/" className="text-blue-700 hover:underline">← Dashboard</Link>
-        <h1 className="my-5 text-2xl font-bold">Notifications &amp; My Actions</h1>
+        <Link href="/" className="text-blue-700 hover:underline">{t("← Dashboard")}</Link>
+        <h1 className="my-5 text-2xl font-bold">{t("Notifications & My Actions")}</h1>
         {params.result === "changed" && (
           <p role="status" className="mb-4 rounded-lg border bg-white p-4">
-            The action changed or could not be marked as read.
-            Check the current list and try again.
+            {t("The action changed or could not be marked as read. Check the current list and try again.")}
           </p>
         )}
         <MyActions page={page} />

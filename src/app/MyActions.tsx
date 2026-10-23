@@ -1,3 +1,5 @@
+import { getMyLanguage } from "@/utils/language";
+import { actionText } from "@/utils/actionTranslations";
 import Link from "next/link";
 import { cache } from "react";
 import { redirect } from "next/navigation";
@@ -78,17 +80,20 @@ async function handleAction(formData: FormData) {
 }
 
 export async function NotificationBell() {
+  const language = await getMyLanguage();
+  const t = (text: string, values: Record<string, string | number> = {}) =>
+    actionText(language, text, values);
   const result = await loadActions(1);
   return (
     <Link href="/my-actions"
       aria-label={result.error
-        ? "Notifications unavailable. Open My Actions."
-        : `My Actions, ${result.unread} unread`}
+        ? t("Notifications unavailable. Open My Actions.")
+        : t("My Actions, {count} unread", { count: result.unread })}
       className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-blue-700 hover:bg-blue-50">
       <span aria-hidden="true">🔔</span>
-      <span>My Actions</span>
+      <span>{t("My Actions")}</span>
       {result.error ? (
-        <span className="text-xs text-slate-500">Unavailable</span>
+        <span className="text-xs text-slate-500">{t("Unavailable")}</span>
       ) : (
         <span className="rounded-full bg-blue-700 px-2 py-0.5 text-xs text-white">
           {result.unread}
@@ -109,6 +114,9 @@ function elapsed(value: string) {
 export default async function MyActions({
   compact = false, page = 1,
 }: { compact?: boolean; page?: number }) {
+  const language = await getMyLanguage();
+  const t = (text: string, values: Record<string, string | number> = {}) =>
+    actionText(language, text, values);
   const result = await loadActions(page);
   const items = compact ? result.items.slice(0, 5) : result.items;
   const pages = Math.max(1, Math.ceil(result.total / 10));
@@ -119,23 +127,22 @@ export default async function MyActions({
   return (
     <section id="my-actions" className="mb-8 rounded-xl border bg-white p-5 text-slate-900 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-xl font-bold">My Actions</h2>
+        <h2 className="text-xl font-bold">{t("My Actions")}</h2>
         {compact && (
           <Link href="/my-actions" className="font-semibold text-blue-700 hover:underline">
-            View all →
+            {t("View all →")}
           </Link>
         )}
       </div>
       <p className="mt-2 text-sm text-slate-600">
-        {result.error ? "Actions are temporarily unavailable."
-          : `${result.total} outstanding · ${result.unread} unread`}
-        {" "}Reading clears the unread indicator. The action remains until
-        the required work is completed. Refresh to update.
+        {result.error ? t("Actions are temporarily unavailable.")
+          : t("{total} outstanding · {unread} unread", { total: result.total, unread: result.unread })}
+        {" "}{t("Reading clears the unread indicator. The action remains until the required work is completed. Refresh to update.")}
       </p>
 
       {result.error ? (
         <p role="alert" className="mt-4 text-red-700">
-          Your actions could not be loaded. Please refresh.
+          {t("Your actions could not be loaded. Please refresh.")}
         </p>
       ) : (
         <>
@@ -150,16 +157,16 @@ export default async function MyActions({
                     MRF {item.mrf_number} · {item.machine_name}
                   </p>
                   <p>
-                    {priorities[item.priority] ?? "Normal"}
-                    {item.is_unread ? " · Unread" : " · Read"}
+                    {t(priorities[item.priority] ?? "Normal")}
+                    {" · "}{t(item.is_unread ? "Unread" : "Read")}
                   </p>
                 </div>
                 <h3 className="mt-2 font-semibold">{item.title}</h3>
                 <p className="mt-2 text-sm text-slate-600">
-                  Action waiting: {elapsed(item.action_since)}
-                  {" · Since "}{new Date(item.action_since).toLocaleString(
+                  {t("Action waiting")}: {elapsed(item.action_since)}
+                  {" · "}{t("Since")}{" "}{new Date(item.action_since).toLocaleString(
                     "en-MY", { timeZone: "Asia/Kuala_Lumpur" }
-                  )} (Malaysia time)
+                  )} ({t("Malaysia time")})
                 </p>
                 <form action={handleAction} className="mt-3 flex flex-wrap gap-3">
                   <input type="hidden" name="action_key" value={item.action_key} />
@@ -171,7 +178,7 @@ export default async function MyActions({
                   {item.is_unread && (
                     <button name="intent" value="read"
                       className="rounded-lg border border-slate-300 bg-white px-4 py-3 text-slate-700">
-                      Mark as read
+                      {t("Mark as read")}
                     </button>
                   )}
                 </form>
@@ -180,24 +187,24 @@ export default async function MyActions({
             {!items.length && (
               <p className="rounded-lg bg-slate-50 p-4">
                 {result.total === 0
-                  ? "No outstanding actions for your account."
-                  : "No actions on this page. Return to page 1."}
+                  ? t("No outstanding actions for your account.")
+                  : t("No actions on this page. Return to page 1.")}
               </p>
             )}
           </div>
           {compact && result.total > items.length && (
             <Link href="/my-actions" className="mt-4 inline-block text-blue-700">
-              View all {result.total} actions →
+              {t("View all {count} actions →", { count: result.total })}
             </Link>
           )}
           {!compact && (
-            <nav aria-label="Action pages" className="mt-5 flex flex-wrap justify-between gap-3 text-blue-700">
+            <nav aria-label={t("Action pages")} className="mt-5 flex flex-wrap justify-between gap-3 text-blue-700">
               <span>
-                {page > 1 && <Link href={`/my-actions?page=${page - 1}`}>← Previous</Link>}
+                {page > 1 && <Link href={`/my-actions?page=${page - 1}`}>{t("← Previous")}</Link>}
               </span>
-              <Link href="/my-actions">Page {page} of {pages}</Link>
+              <Link href="/my-actions">{t("Page {page} of {pages}", { page, pages })}</Link>
               <span>
-                {page < pages && <Link href={`/my-actions?page=${page + 1}`}>Next →</Link>}
+                {page < pages && <Link href={`/my-actions?page=${page + 1}`}>{t("Next →")}</Link>}
               </span>
             </nav>
           )}
