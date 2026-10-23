@@ -149,6 +149,165 @@ const translations: Record<string, Record<string, string>> = {
   }
 };
 
+// Individual maintenance action translations
+Object.assign(translations, {
+  "Request needs HOD approval": {
+    "ms": "Permohonan memerlukan kelulusan Ketua Jabatan",
+    "zh": "申请待部门主管审批",
+    "ne": "अनुरोधमा विभाग प्रमुखको स्वीकृति आवश्यक छ"
+  },
+  "Approved MRF needs a maintenance team": {
+    "ms": "MRF diluluskan memerlukan pasukan penyelenggaraan",
+    "zh": "已批准的 MRF 待分配维修团队",
+    "ne": "स्वीकृत MRF मा मर्मत टोली तोक्न आवश्यक छ"
+  },
+  "You have an assigned maintenance job": {
+    "ms": "Anda mempunyai kerja penyelenggaraan yang ditugaskan",
+    "zh": "您有一项已分配的维修工作",
+    "ne": "तपाईंलाई मर्मत कार्य तोकिएको छ"
+  },
+  "Your maintenance work is unfinished": {
+    "ms": "Kerja penyelenggaraan anda belum selesai",
+    "zh": "您的维修工作尚未完成",
+    "ne": "तपाईंको मर्मत कार्य अझै पूरा भएको छैन"
+  },
+  "Recorded work is finished: review overall repair": {
+    "ms": "Kerja yang direkodkan selesai: semak keseluruhan pembaikan",
+    "zh": "已记录的工作已完成：请审核整体维修",
+    "ne": "अभिलेख गरिएको काम सकियो: समग्र मर्मत समीक्षा गर्नुहोस्"
+  },
+  "Completed repair needs manager approval": {
+    "ms": "Pembaikan selesai memerlukan kelulusan pengurus",
+    "zh": "已完成的维修待经理审批",
+    "ne": "सम्पन्न मर्मतमा प्रबन्धकको स्वीकृति आवश्यक छ"
+  },
+  "Completed repair needs your department HOD approval": {
+    "ms": "Pembaikan selesai memerlukan kelulusan Ketua Jabatan anda",
+    "zh": "已完成的维修待您部门主管审批",
+    "ne": "सम्पन्न मर्मतमा तपाईंको विभाग प्रमुखको स्वीकृति आवश्यक छ"
+  },
+  "Verified checklist: maintenance handover needs signing": {
+    "ms": "Senarai semak disahkan: serahan penyelenggaraan perlu ditandatangani",
+    "zh": "检查清单已核实：待维修方签署交接",
+    "ne": "जाँचसूची प्रमाणित: मर्मत हस्तान्तरणमा हस्ताक्षर आवश्यक छ"
+  },
+  "Handover checklist needs verification": {
+    "ms": "Senarai semak serahan perlu disahkan",
+    "zh": "交接检查清单待核实",
+    "ne": "हस्तान्तरण जाँचसूची प्रमाणित गर्न आवश्यक छ"
+  },
+  "Maintenance handover is signed: inspect and accept": {
+    "ms": "Serahan penyelenggaraan ditandatangani: periksa dan terima",
+    "zh": "维修方已签署交接：请检查并验收",
+    "ne": "मर्मत हस्तान्तरणमा हस्ताक्षर भयो: निरीक्षण गरी स्वीकार गर्नुहोस्"
+  },
+  "Review request": {
+    "ms": "Semak permohonan",
+    "zh": "审核申请",
+    "ne": "अनुरोध समीक्षा गर्नुहोस्"
+  },
+  "Assign team": {
+    "ms": "Tugaskan pasukan",
+    "zh": "分配团队",
+    "ne": "टोली तोक्नुहोस्"
+  },
+  "View / start work": {
+    "ms": "Lihat / mula kerja",
+    "zh": "查看／开始工作",
+    "ne": "काम हेर्नुहोस् / सुरु गर्नुहोस्"
+  },
+  "View / continue work": {
+    "ms": "Lihat / teruskan kerja",
+    "zh": "查看／继续工作",
+    "ne": "काम हेर्नुहोस् / जारी राख्नुहोस्"
+  },
+  "View / start task": {
+    "ms": "Lihat / mula tugas",
+    "zh": "查看／开始任务",
+    "ne": "कार्य हेर्नुहोस् / सुरु गर्नुहोस्"
+  },
+  "View / continue task": {
+    "ms": "Lihat / teruskan tugas",
+    "zh": "查看／继续任务",
+    "ne": "कार्य हेर्नुहोस् / जारी राख्नुहोस्"
+  },
+  "Review task": {
+    "ms": "Semak tugas",
+    "zh": "审核任务",
+    "ne": "कार्य समीक्षा गर्नुहोस्"
+  },
+  "Review repair": {
+    "ms": "Semak pembaikan",
+    "zh": "审核维修",
+    "ne": "मर्मत समीक्षा गर्नुहोस्"
+  },
+  "Review repair approval": {
+    "ms": "Semak kelulusan pembaikan",
+    "zh": "审核维修完成审批",
+    "ne": "मर्मत स्वीकृति समीक्षा गर्नुहोस्"
+  },
+  "Open handover": {
+    "ms": "Buka serahan",
+    "zh": "查看交接",
+    "ne": "हस्तान्तरण खोल्नुहोस्"
+  },
+  "Review / accept handover": {
+    "ms": "Semak / terima serahan",
+    "zh": "审核／验收交接",
+    "ne": "हस्तान्तरण समीक्षा / स्वीकार गर्नुहोस्"
+  },
+  "Add MIV number": {
+    "ms": "Tambah nombor MIV",
+    "zh": "填写 MIV 编号",
+    "ne": "MIV नम्बर थप्नुहोस्"
+  },
+  "Review part": {
+    "ms": "Semak alat ganti",
+    "zh": "查看备件",
+    "ne": "पार्टपुर्जा समीक्षा गर्नुहोस्"
+  },
+  "Review follow-up": {
+    "ms": "Semak susulan",
+    "zh": "查看后续跟进",
+    "ne": "अनुगमन समीक्षा गर्नुहोस्"
+  },
+  "Your task is unfinished: ": {
+    "ms": "Tugas anda belum selesai: ",
+    "zh": "您的任务尚未完成：",
+    "ne": "तपाईंको कार्य अझै पूरा भएको छैन: "
+  },
+  "Team work finished: review task ": {
+    "ms": "Kerja pasukan selesai: semak tugas ",
+    "zh": "团队工作已完成：请审核任务 ",
+    "ne": "टोलीको काम सकियो: कार्य समीक्षा गर्नुहोस् "
+  },
+  "Check requested part: ": {
+    "ms": "Semak alat ganti yang diminta: ",
+    "zh": "检查所需备件：",
+    "ne": "अनुरोध गरिएको पार्टपुर्जा जाँच्नुहोस्: "
+  },
+  "Follow up waiting part: ": {
+    "ms": "Susuli alat ganti yang ditunggu: ",
+    "zh": "跟进等待中的备件：",
+    "ne": "पर्खिरहेको पार्टपुर्जा अनुगमन गर्नुहोस्: "
+  },
+  "Part available: arrange issue — ": {
+    "ms": "Alat ganti tersedia: atur pengeluaran — ",
+    "zh": "备件已到位：安排领用 — ",
+    "ne": "पार्टपुर्जा उपलब्ध: जारी गर्ने व्यवस्था गर्नुहोस् — "
+  },
+  "Add MIV number for issued part: ": {
+    "ms": "Tambah nombor MIV bagi alat ganti yang dikeluarkan: ",
+    "zh": "已领用备件待填写 MIV 编号：",
+    "ne": "जारी गरिएको पार्टपुर्जाको MIV नम्बर थप्नुहोस्: "
+  },
+  "Permanent repair follow-up due ": {
+    "ms": "Tarikh sasaran susulan pembaikan kekal: ",
+    "zh": "永久维修跟进目标日期：",
+    "ne": "स्थायी मर्मत अनुगमनको लक्षित मिति: "
+  }
+});
+
 export function actionText(
   language: Language,
   text: string,
@@ -157,4 +316,18 @@ export function actionText(
   const translated = language === "en" ? text : translations[text]?.[language] ?? text;
   return translated.replace(/\{(\w+)\}/g, (match, key: string) =>
     Object.prototype.hasOwnProperty.call(values, key) ? String(values[key]) : match);
+}
+
+const titlePrefixes: string[] = ["Your task is unfinished: ", "Team work finished: review task ", "Check requested part: ", "Follow up waiting part: ", "Part available: arrange issue — ", "Add MIV number for issued part: ", "Permanent repair follow-up due "];
+
+export function actionTitle(language: Language, title: string): string {
+  if (language === "en") return title;
+  const exact = translations[title]?.[language];
+  if (exact !== undefined) return exact;
+  for (const prefix of titlePrefixes) {
+    if (title.startsWith(prefix)) {
+      return (translations[prefix]?.[language] ?? prefix) + title.slice(prefix.length);
+    }
+  }
+  return title;
 }

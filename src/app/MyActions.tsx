@@ -1,5 +1,5 @@
 import { getMyLanguage } from "@/utils/language";
-import { actionText } from "@/utils/actionTranslations";
+import { actionText, actionTitle } from "@/utils/actionTranslations";
 import Link from "next/link";
 import { cache } from "react";
 import { redirect } from "next/navigation";
@@ -161,7 +161,7 @@ export default async function MyActions({
                     {" · "}{t(item.is_unread ? "Unread" : "Read")}
                   </p>
                 </div>
-                <h3 className="mt-2 font-semibold">{item.title}</h3>
+                <h3 className="mt-2 font-semibold">{actionTitle(language, item.title)}</h3>
                 <p className="mt-2 text-sm text-slate-600">
                   {t("Action waiting")}: {elapsed(item.action_since)}
                   {" · "}{t("Since")}{" "}{new Date(item.action_since).toLocaleString(
@@ -173,7 +173,7 @@ export default async function MyActions({
                   <input type="hidden" name="action_since" value={item.action_since} />
                   <button name="intent" value="open"
                     className="rounded-lg bg-blue-700 px-4 py-3 font-semibold text-white">
-                    {item.action_label} →
+                    {t(item.action_label)} →
                   </button>
                   {item.is_unread && (
                     <button name="intent" value="read"
