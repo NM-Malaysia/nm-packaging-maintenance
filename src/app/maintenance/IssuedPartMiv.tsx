@@ -1,3 +1,5 @@
+import { getMyLanguage } from "@/utils/language";
+import { mivText } from "@/utils/mivTranslations";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/utils/supabase/server";
@@ -33,31 +35,24 @@ async function addMiv(formData: FormData) {
   redirect(maintenanceResult(formData, "parts_saved"));
 }
 
-export default function IssuedPartMiv({
+export default async function IssuedPartMiv({
   partId, requestId,
 }: { partId: string; requestId: string }) {
+  const language = await getMyLanguage();
+  const t = (text: string) => mivText(language, text);
   return (
     <details className="mt-3 text-slate-900">
-      <summary className="cursor-pointer font-semibold text-blue-700">
-        Add MIV Number
-      </summary>
+      <summary className="cursor-pointer font-semibold text-blue-700">{t("Add MIV Number")}</summary>
       <form action={addMiv} className="mt-3 space-y-3">
         <input type="hidden" name="part_id" value={partId} />
         <input type="hidden" name="return_to"
           value={`/maintenance/${requestId}`} />
-        <label className="block">
-          MIV number
-          <input name="miv_number" required maxLength={100}
+        <label className="block">{t("MIV number")}<input name="miv_number" required maxLength={100}
             className="mt-1 block w-full rounded-lg border border-slate-300 bg-white p-3 text-base text-slate-900" />
         </label>
-        <p className="text-sm text-slate-600">
-          Several items may share this MIV number.
-          Check the number before saving; it locks after recording.
-        </p>
+        <p className="text-sm text-slate-600">{t("Several items may share this MIV number. Check the number before saving; it locks after recording.")}</p>
         <button type="submit"
-          className="rounded-lg bg-blue-700 px-5 py-3 font-semibold text-white">
-          Save MIV Number
-        </button>
+          className="rounded-lg bg-blue-700 px-5 py-3 font-semibold text-white">{t("Save MIV Number")}</button>
       </form>
     </details>
   );
