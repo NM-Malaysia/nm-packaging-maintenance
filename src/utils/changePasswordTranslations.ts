@@ -81,3 +81,37 @@ const dictionary: Record<string, Record<string, string>> = {
 export function changePasswordText(language: LoginLanguage, text: string): string {
   return language === "en" ? text : dictionary[text]?.[language] ?? text;
 }
+
+// Password change API error translations
+Object.assign(dictionary, {
+  "Please sign in again.": {
+    "ms": "Sila log masuk semula.",
+    "zh": "请重新登录。",
+    "ne": "कृपया फेरि लगइन गर्नुहोस्।"
+  },
+  "Password change is not permitted.": {
+    "ms": "Penukaran kata laluan tidak dibenarkan.",
+    "zh": "不允许更改密码。",
+    "ne": "पासवर्ड परिवर्तन गर्न अनुमति छैन।"
+  },
+  "Passwords must match and contain 12–128 characters.": {
+    "ms": "Kata laluan mesti sepadan dan mengandungi 12–128 aksara.",
+    "zh": "两次输入的密码必须一致，并包含12至128个字符。",
+    "ne": "पासवर्डहरू मिल्नुपर्छ र १२–१२८ अक्षर हुनुपर्छ।"
+  },
+  "Password update failed. Please try again.": {
+    "ms": "Kemas kini kata laluan gagal. Sila cuba lagi.",
+    "zh": "密码更新失败，请重试。",
+    "ne": "पासवर्ड अद्यावधिक असफल भयो। कृपया फेरि प्रयास गर्नुहोस्।"
+  },
+  "Password changed, but account setup is incomplete. Contact your administrator.": {
+    "ms": "Kata laluan telah ditukar, tetapi persediaan akaun belum lengkap. Hubungi pentadbir anda.",
+    "zh": "密码已更改，但账户设置尚未完成。请联系管理员。",
+    "ne": "पासवर्ड परिवर्तन भयो, तर खाता सेटअप पूरा भएको छैन। आफ्नो प्रशासकलाई सम्पर्क गर्नुहोस्।"
+  },
+  "Unable to complete password change.": {
+    "ms": "Tidak dapat menyelesaikan penukaran kata laluan.",
+    "zh": "无法完成密码更改。",
+    "ne": "पासवर्ड परिवर्तन पूरा गर्न सकिएन।"
+  }
+});
