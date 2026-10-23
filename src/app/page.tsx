@@ -107,15 +107,32 @@ const canOpenMaintenance = [
 const canReviewHod = ["department_hod", "admin"].includes(employee.role);
 
 
-const [totalResult, submittedResult, recentResult] = await Promise.all([
-  supabase.from("maintenance_requests")
-    .select("id", { count: "exact", head: true }),
-  supabase.from("maintenance_requests")
-    .select("id", { count: "exact", head: true })
-    .eq("status", "submitted"),
+const summaryDefinitions = [
+  {
+    label: "Open MRFs",
+    statuses: [
+      "submitted", "hod_approved", "in_progress",
+      "waiting_spare_parts", "follow_up_required",
+      "repair_completed", "handover_pending",
+    ],
+  },
+  { label: "In Progress", statuses: ["in_progress"] },
+  { label: "Waiting for Spare Parts", statuses: ["waiting_spare_parts"] },
+  { label: "Pending Repair Approval", statuses: ["repair_completed"] },
+  { label: "Pending Handover", statuses: ["handover_pending"] },
+  { label: "Closed MRFs", statuses: ["closed"] },
+];
+
+const [summaryResults, recentResult] = await Promise.all([
+  Promise.all(summaryDefinitions.map((item) =>
+    supabase.from("maintenance_requests")
+      .select("id", { count: "exact", head: true })
+      .in("status", item.statuses)
+  )),
   supabase.from("maintenance_requests")
     .select("id, mrf_number, machine_name, department, status, submitted_at")
     .order("submitted_at", { ascending: false })
+    .order("id", { ascending: false })
     .limit(10),
 ]);
 
@@ -123,7 +140,8 @@ const language = await getMyLanguage();
 const t = (text: string) => dashboardText(language, text);
 
 const requestLoadError =
-  totalResult.error || submittedResult.error || recentResult.error;
+  summaryResults.some((result) => result.error || result.count === null)
+  || recentResult.error;
 
 
   return (
@@ -193,25 +211,27 @@ const requestLoadError =
           </nav>
         )}
 
-        <section className="mb-8 grid gap-4 sm:grid-cols-3">
-          {[
-            { label: t("Accessible MRFs"), value: totalResult.error ? t("Unavailable") : String(totalResult.count ?? 0) },
-            { label: t("Submitted MRFs"), value: submittedResult.error ? t("Unavailable") : String(submittedResult.count ?? 0) },
-            { label: t("Overdue PM Tasks"), value: t("Not connected") },
-          ].map((item) => (
-            <div
-              key={item.label}
-              className="rounded-xl bg-white p-6 shadow-sm"
-            >
-              <p className="text-sm text-slate-500">
-                {item.label}
-              </p>
-
-              <p className="mt-2 text-3xl font-bold text-slate-900">
-                {item.value}
-              </p>
-            </div>
-          ))}
+        <section aria-label={t("MRF status summary")} className="mb-8">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+            {summaryDefinitions.map((item, index) => {
+              const result = summaryResults[index];
+              const unavailable = !result || result.error || result.count === null;
+              return (
+                <article key={item.label}
+                  className="min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+                  <h3 className="text-sm font-medium text-slate-600">
+                    {t(item.label)}
+                  </h3>
+                  <p className="mt-3 break-words text-2xl font-bold text-slate-900 sm:text-3xl">
+                    {unavailable ? t("Unavailable") : String(result.count)}
+                  </p>
+                </article>
+              );
+            })}
+          </div>
+          <p className="mt-3 text-sm text-slate-600">
+            {t("Counts cover all MRFs visible to your account, with no date filter. Open includes submitted, HOD-approved, in-progress, waiting, follow-up, repair-completed and handover-pending requests. The stage counts overlap with Open. Refresh to update.")}
+          </p>
         </section>
 
         <section className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

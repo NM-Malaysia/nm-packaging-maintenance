@@ -284,3 +284,47 @@ Object.assign(translations, {
 export function dashboardText(language: Language, text: string): string {
   return language === "en" ? text : translations[text]?.[language] ?? text;
 }
+
+// Dashboard live MRF summary translations
+Object.assign(translations, {
+  "MRF status summary": {
+    "ms": "Ringkasan status MRF",
+    "zh": "MRF状态概览",
+    "ne": "MRF स्थिति सारांश"
+  },
+  "Open MRFs": {
+    "ms": "MRF Terbuka",
+    "zh": "未关闭的MRF",
+    "ne": "खुला MRF"
+  },
+  "In Progress": {
+    "ms": "Sedang Dijalankan",
+    "zh": "进行中",
+    "ne": "काम भइरहेको"
+  },
+  "Waiting for Spare Parts": {
+    "ms": "Menunggu Alat Ganti",
+    "zh": "等待备件",
+    "ne": "पार्टपुर्जा पर्खिरहेको"
+  },
+  "Pending Repair Approval": {
+    "ms": "Menunggu Kelulusan Pembaikan",
+    "zh": "待维修完成审批",
+    "ne": "मर्मत स्वीकृति पर्खिरहेको"
+  },
+  "Pending Handover": {
+    "ms": "Menunggu Serahan",
+    "zh": "待交接",
+    "ne": "हस्तान्तरण पर्खिरहेको"
+  },
+  "Closed MRFs": {
+    "ms": "MRF Ditutup",
+    "zh": "已关闭的MRF",
+    "ne": "बन्द MRF"
+  },
+  "Counts cover all MRFs visible to your account, with no date filter. Open includes submitted, HOD-approved, in-progress, waiting, follow-up, repair-completed and handover-pending requests. The stage counts overlap with Open. Refresh to update.": {
+    "ms": "Kiraan meliputi semua MRF yang boleh dilihat oleh akaun anda, tanpa penapis tarikh. MRF Terbuka merangkumi permohonan dihantar, diluluskan HOD, sedang dijalankan, menunggu alat ganti, memerlukan susulan, pembaikan selesai dan menunggu serahan. Kiraan peringkat turut termasuk dalam MRF Terbuka. Muat semula untuk mengemas kini.",
+    "zh": "统计包含您账户可见的所有MRF，不设日期筛选。未关闭的MRF包括已提交、部门主管已批准、进行中、等待备件、待后续跟进、维修已完成及待交接的申请。各阶段数量也包含在未关闭总数中。刷新页面以更新。",
+    "ne": "गणनामा तपाईंको खाताले देख्न सक्ने सबै MRF समावेश छन्, मिति फिल्टर छैन। खुला MRF मा पठाइएका, विभाग प्रमुखबाट स्वीकृत, काम भइरहेका, पार्टपुर्जा पर्खिरहेका, अनुगमन आवश्यक, मर्मत सम्पन्न र हस्तान्तरण बाँकी अनुरोध पर्छन्। चरणका गणना खुला MRF को कुलमा पनि समावेश छन्। अद्यावधिक गर्न रिफ्रेस गर्नुहोस्।"
+  }
+});
