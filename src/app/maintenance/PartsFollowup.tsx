@@ -1,3 +1,5 @@
+import { getMyLanguage } from "@/utils/language";
+import { partsText } from "@/utils/partsTranslations";
 import Link from "next/link";
 import IssuedPartMiv from "./IssuedPartMiv";
 import PartStatusForm from "./PartStatusForm";
@@ -198,6 +200,9 @@ export default async function PartsFollowup({
     .select("role, is_active, must_change_password")
     .eq("id", user.id).maybeSingle();
 
+  const language = await getMyLanguage();
+  const t = (text: string) => partsText(language, text);
+
   const canRecordMiv = Boolean(employee?.is_active
     && !employee.must_change_password
     && ["admin", "maintenance_clerk"].includes(employee.role));
@@ -233,64 +238,57 @@ export default async function PartsFollowup({
 
   return (
     <section className="mt-5 border-t pt-5 text-slate-900">
-      <h3 className="text-lg font-semibold">Parts Follow-up &amp; MIV Records</h3>
+      <h3 className="text-lg font-semibold">{t("Parts Follow-up & MIV Records")}</h3>
       {canRecordMiv && (
         <Link href="/parts-followup"
-          className="mt-2 inline-block font-semibold text-blue-700 hover:underline">
-          All MRFs · Parts Follow-up / MIV Pending →
-        </Link>
+          className="mt-2 inline-block font-semibold text-blue-700 hover:underline">{t("All MRFs · Parts Follow-up / MIV Pending →")}</Link>
       )}
 
-      <p className="mt-1 text-sm text-slate-600">
-        The clerk records part availability and issues against this MRF.
-        Waiting time runs from Part needed to Available.
-      </p>
+      <p className="mt-1 text-sm text-slate-600">{t("The clerk records part availability and issues against this MRF. Waiting time runs from Part needed to Available.")}</p>
 
       {error ? (
-        <p role="alert" className="mt-3 text-red-700">
-          Parts records could not be loaded. Please refresh.
-        </p>
+        <p role="alert" className="mt-3 text-red-700">{t("Parts records could not be loaded. Please refresh.")}</p>
       ) : parts.length ? (
         <div className="mt-4 space-y-3">
           {parts.map((part) => (
             <article key={part.id} className="rounded-lg border bg-white p-4">
               <div className="flex flex-wrap justify-between gap-2">
-                <h4 className="font-semibold">{part.part_code || "Code not confirmed"} · {part.part_name}</h4>
-                <span className="capitalize">{part.status.replaceAll("_", " ")}</span>
+                <h4 className="font-semibold">{part.part_code || t("Code not confirmed")} · {part.part_name}</h4>
+                <span className="capitalize">{t(part.status.replaceAll("_", " "))}</span>
               </div>
               <p className="mt-2 text-sm">
-                Quantity: {part.quantity} · {part.source === "store"
-                  ? "Store on hand" : part.source === "purchase"
-                    ? "Purchase required" : "Source awaiting clerk check"}
+                {t("Quantity:")} {part.quantity} · {part.source === "store"
+                  ? t("Store on hand") : part.source === "purchase"
+                    ? t("Purchase required") : t("Source awaiting clerk check")}
               </p>
               <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
                 {([
                   ["Needed", part.needed_at], ["Ordered", part.ordered_at],
                   ["Available", part.available_at], ["Issued", part.issued_at],
                 ] as const).map(([label, value]) => (
-                  <div key={label}><dt className="text-slate-500">{label}</dt>
-                    <dd>{displayTime(value)}{value ? " (Malaysia time)" : ""}</dd>
+                  <div key={label}><dt className="text-slate-500">{t(label)}</dt>
+                    <dd>{value ? displayTime(value) : t("Not recorded")}{value ? " (" + t("Malaysia time") + ")" : ""}</dd>
                   </div>
                 ))}
               </dl>
               {part.available_at && (
                 <p className="mt-2 text-sm">
-                  Recorded wait: {Math.max(0, Math.round(
+                  {t("Recorded wait:")} {Math.max(0, Math.round(
                     (Date.parse(part.available_at) - Date.parse(part.needed_at)) / 60000
-                  ))} minutes
+                  ))} {t("minutes")}
                 </p>
               )}
               {part.miv_number && <p className="mt-2 text-sm">MIV: {part.miv_number}</p>}
               {part.purchase_reference && (
-                <p className="mt-2 text-sm">Purchase reference: {part.purchase_reference}</p>
+                <p className="mt-2 text-sm">{t("Purchase reference:")} {part.purchase_reference}</p>
               )}
               {part.defect_details && (
-                <p className="mt-2 whitespace-pre-wrap">Defect / reason: {part.defect_details}</p>
+                <p className="mt-2 whitespace-pre-wrap">{t("Defect / reason:")} {part.defect_details}</p>
               )}
               {part.notes && <p className="mt-2 whitespace-pre-wrap">{part.notes}</p>}
               {part.status === "issued" && !part.miv_number.trim() && (
                 <div className="mt-3 rounded-lg bg-amber-50 p-4">
-                  <p className="font-semibold text-amber-900">MIV Pending</p>
+                  <p className="font-semibold text-amber-900">{t("MIV Pending")}</p>
                   {canRecordMiv && (
                     <IssuedPartMiv partId={part.id} requestId={requestId} />
                   )}
@@ -298,77 +296,52 @@ export default async function PartsFollowup({
               )}
               {canEdit && !["issued", "cancelled"].includes(part.status) && (
                 <details className="mt-3">
-                  <summary className="cursor-pointer font-medium text-blue-700">
-                    Update part record
-                  </summary>
+                  <summary className="cursor-pointer font-medium text-blue-700">{t("Update part record")}</summary>
                   <PartForm requestId={requestId} part={part} />
                 </details>
               )}
             </article>
           ))}
         </div>
-      ) : <p className="mt-3 text-sm text-slate-600">No parts recorded for this MRF.</p>}
+      ) : <p className="mt-3 text-sm text-slate-600">{t("No parts recorded for this MRF.")}</p>}
 
 
       {assignmentError && (
-        <p role="alert" className="mt-3 text-red-700">
-          Your assignment could not be checked. Please refresh.
-        </p>
+        <p role="alert" className="mt-3 text-red-700">{t("Your assignment could not be checked. Please refresh.")}</p>
       )}
 
       {canRequest && !error && (
         <details className="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4">
-          <summary className="cursor-pointer font-semibold text-blue-700">
-            + Request Part
-          </summary>
-          <p className="mt-3 text-sm text-slate-600">
-            Send the part requirement to the maintenance clerk for checking.
-            Enter the part code only if known.
-          </p>
+          <summary className="cursor-pointer font-semibold text-blue-700">{t("+ Request Part")}</summary>
+          <p className="mt-3 text-sm text-slate-600">{t("Send the part requirement to the maintenance clerk for checking. Enter the part code only if known.")}</p>
           <form action={requestPart} className="mt-4 space-y-4">
             <input type="hidden" name="request_id" value={requestId} />
             <input type="hidden" name="return_to"
               value={`/maintenance/${requestId}`} />
 
-            <label className="block">
-              Part name / description
-              <input name="part_name" required maxLength={200}
-                placeholder="For example: Fuji8 control circuit board"
+            <label className="block">{t("Part name / description")}<input name="part_name" required maxLength={200}
+                placeholder={t("For example: Fuji8 control circuit board")}
                 className={field} />
             </label>
-            <label className="block">
-              Part code — optional
-              <input name="part_code" maxLength={100} className={field} />
+            <label className="block">{t("Part code — optional")}<input name="part_code" maxLength={100} className={field} />
             </label>
-            <label className="block">
-              Quantity required
-              <input name="quantity" type="number" required min="0.01"
+            <label className="block">{t("Quantity required")}<input name="quantity" type="number" required min="0.01"
                 max="9999999999.99" step="0.01" defaultValue={1}
                 className={field} />
             </label>
-            <label className="block">
-              Defect / reason for replacement
-              <textarea name="reason" required maxLength={5000} rows={3}
+            <label className="block">{t("Defect / reason for replacement")}<textarea name="reason" required maxLength={5000} rows={3}
                 className={field} />
             </label>
-            <p className="text-sm text-slate-600">
-              The request starts as Pending Clerk Check.
-              The clerk records availability, purchase follow-up and MIV details.
-              This does not change the overall MRF status.
-            </p>
+            <p className="text-sm text-slate-600">{t("The request starts as Pending Clerk Check. The clerk records availability, purchase follow-up and MIV details. This does not change the overall MRF status.")}</p>
             <button type="submit"
-              className="rounded-lg bg-blue-700 px-5 py-3 font-semibold text-white">
-              Submit Part Request
-            </button>
+              className="rounded-lg bg-blue-700 px-5 py-3 font-semibold text-white">{t("Submit Part Request")}</button>
           </form>
         </details>
       )}
 
       {canEdit && !error && (
         <details className="mt-4 rounded-lg border bg-slate-50 p-4">
-          <summary className="cursor-pointer font-semibold text-blue-700">
-            + Add Part / MIV Record
-          </summary>
+          <summary className="cursor-pointer font-semibold text-blue-700">{t("+ Add Part / MIV Record")}</summary>
           <PartForm requestId={requestId} />
         </details>
       )}
