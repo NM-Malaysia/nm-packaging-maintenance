@@ -1,5 +1,6 @@
 "use client";
 
+import { employeeStatusText, type EmployeeStatusLanguage } from "@/utils/employeeStatusTranslations";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -8,6 +9,7 @@ type EmployeeStatusButtonProps = {
   employeeNumber: string;
   employeeName: string;
   isActive: boolean;
+  language?: EmployeeStatusLanguage;
 };
 
 export default function EmployeeStatusButton({
@@ -15,7 +17,9 @@ export default function EmployeeStatusButton({
   employeeNumber,
   employeeName,
   isActive,
+  language = "en",
 }: EmployeeStatusButtonProps) {
+  const t = (text: string) => employeeStatusText(language, text);
   const [showConfirmation, setShowConfirmation] =
     useState(false);
 
@@ -76,7 +80,7 @@ export default function EmployeeStatusButton({
         }}
         className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
       >
-        {action}
+        {t(action)}
       </button>
 
       {showConfirmation && (
@@ -84,27 +88,20 @@ export default function EmployeeStatusButton({
           <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
 
             <h2 className="text-xl font-bold text-slate-900">
-              Confirm Employee {action}
+              {t(isActive ? "Confirm Employee Deactivation" : "Confirm Employee Activation")}
             </h2>
 
             <p className="mt-4 text-slate-700">
-              Are you sure you want to{" "}
-              {action.toLowerCase()}{" "}
-              <strong>{employeeName}</strong>?
+              {t(isActive ? "Deactivate this employee?" : "Activate this employee?")}{" "}<strong>{employeeName}</strong>
             </p>
 
             <p className="mt-2 text-sm text-slate-500">
-              Employee ID: {employeeNumber}
+              {t("Employee ID:")} {employeeNumber}
             </p>
 
             {/* Deactivation warning */}
             {isActive && (
-              <p className="mt-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
-                Warning: Deactivating an employee will
-                prevent them from accessing the
-                maintenance system. The last active
-                Admin account is protected.
-              </p>
+              <p className="mt-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-800">{t("Warning: Deactivating an employee will prevent them from accessing the maintenance system. The last active Admin account is protected.")}</p>
             )}
 
             {/* Error message */}
@@ -113,7 +110,7 @@ export default function EmployeeStatusButton({
                 role="alert"
                 className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700"
               >
-                {errorMessage}
+                {t(errorMessage)}
               </p>
             )}
 
@@ -126,9 +123,7 @@ export default function EmployeeStatusButton({
                   setShowConfirmation(false);
                 }}
                 className="rounded-lg border border-slate-300 px-4 py-2 text-slate-700"
-              >
-                Cancel
-              </button>
+              >{t("Cancel")}</button>
 
               <button
   type="button"
@@ -136,14 +131,11 @@ export default function EmployeeStatusButton({
   disabled={isSubmitting}
   className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
 >
-  {isSubmitting ? "Processing..." : `Confirm ${action}`}
+  {isSubmitting ? t("Processing...") : t(isActive ? "Confirm Deactivation" : "Confirm Activation")}
 </button>
             </div>
 
-            <p className="mt-4 text-xs text-slate-500">
-              Confirmation is not enabled yet.
-              No employee status will be changed.
-            </p>
+            <p className="mt-4 text-xs text-slate-500">{t("Confirming sends the employee status change for processing.")}</p>
 
           </div>
         </div>

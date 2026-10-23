@@ -1,3 +1,5 @@
+import { getMyLanguage } from "@/utils/language";
+import { employeeText } from "@/utils/employeeTranslations";
 import EmployeeStatusButton from "./EmployeeStatusButton";
 import { Suspense } from "react";
 import { connection } from "next/server";
@@ -38,6 +40,9 @@ async function ProtectedEmployeeManagement() {
     redirect("/");
   }
 
+  const language = await getMyLanguage();
+  const t = (text: string) => employeeText(language, text);
+
   // Load employees using the signed-in user's permissions
   const { data: employees, error: listError } = await supabase
     .from("employees")
@@ -63,52 +68,39 @@ async function ProtectedEmployeeManagement() {
         <Link
           href="/"
           className="text-sm font-medium text-blue-700 hover:underline"
-        >
-          ← Back to Dashboard
-        </Link>
+        >{t("← Back to Dashboard")}</Link>
 
         <div className="mt-6 mb-6">
-          <h1 className="text-3xl font-bold text-slate-900">
-            Employee Management
-          </h1>
+          <h1 className="text-3xl font-bold text-slate-900">{t("Employee Management")}</h1>
           <p className="mt-2 text-slate-600">
             NM PACKAGING (M) SDN. BHD.
           </p>
-          <p className="mt-1 text-sm text-slate-500">
-            Admin access only
-          </p>
+          <p className="mt-1 text-sm text-slate-500">{t("Admin access only")}</p>
         </div>
 
         <section className="overflow-hidden rounded-xl bg-white shadow-sm">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
-  <h2 className="text-lg font-semibold text-slate-900">
-    Registered Employees
-  </h2>
+  <h2 className="text-lg font-semibold text-slate-900">{t("Registered Employees")}</h2>
 
   <Link
     href="/admin/employees/new"
     className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
-  >
-    + Add Employee
-  </Link>
+  >{t("+ Add Employee")}</Link>
 </div>
 
           {listError ? (
-            <p className="p-5 text-red-700">
-              Unable to load employee records.
-              Please check the database permissions.
-            </p>
+            <p className="p-5 text-red-700">{t("Unable to load employee records. Please check the database permissions.")}</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead className="bg-slate-50 text-slate-700">
                   <tr>
-                    <th className="p-4">Employee ID</th>
-                    <th className="p-4">Full Name</th>
-                    <th className="p-4">Department</th>
-                    <th className="p-4">Role</th>
-                    <th className="p-4">Status</th>
-                    <th className="p-4">Actions</th>
+                    <th className="p-4">{t("Employee ID")}</th>
+                    <th className="p-4">{t("Full Name")}</th>
+                    <th className="p-4">{t("Department")}</th>
+                    <th className="p-4">{t("Role")}</th>
+                    <th className="p-4">{t("Status")}</th>
+                    <th className="p-4">{t("Actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -126,10 +118,10 @@ async function ProtectedEmployeeManagement() {
                       <td className="p-4">
                         {departmentNames.get(
                           employee.department_id
-                        ) ?? "Not assigned"}
+                        ) ?? t("Not assigned")}
                       </td>
                       <td className="p-4">
-                        {employee.role.replaceAll("_", " ")}
+                        {t(employee.role.replaceAll("_", " "))}
                       </td>
                       <td className="p-4">
   <span
@@ -139,12 +131,13 @@ async function ProtectedEmployeeManagement() {
         : "font-medium text-amber-700"
     }
   >
-    {employee.is_active ? "Active" : "Inactive"}
+    {employee.is_active ? t("Active") : t("Inactive")}
   </span>
 </td>
 
 <td className="p-4">
   <EmployeeStatusButton
+  language={language}
   employeeId={employee.id}
   employeeNumber={employee.employee_id}
   employeeName={employee.full_name}
@@ -157,9 +150,7 @@ async function ProtectedEmployeeManagement() {
               </table>
 
               {(employees ?? []).length === 0 && (
-                <p className="p-5 text-slate-500">
-                  No employee records available.
-                </p>
+                <p className="p-5 text-slate-500">{t("No employee records available.")}</p>
               )}
             </div>
           )}
