@@ -295,6 +295,11 @@ const requestLoadError =
                   className="mt-5 inline-block font-semibold text-blue-700 hover:underline">
                   {t("Open parts follow-up & MIV \u2192")}
                 </Link>
+              ) : feature.title === "Machine Register" ? (
+                <Link href="/machines"
+                  className="mt-5 inline-block font-semibold text-blue-700 hover:underline">
+                  {t("Machine Register")} →
+                </Link>
               ) : feature.title === "Reports & Dashboard" ? (
                 ["admin", "maintenance_supervisor"].includes(employee.role) ? (
                   <Link href="/reports"
