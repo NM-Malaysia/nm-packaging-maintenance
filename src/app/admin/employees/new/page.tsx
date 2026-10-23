@@ -1,3 +1,4 @@
+import DashboardNavigation from "../../../DashboardNavigation";
 import { getMyLanguage } from "@/utils/language";
 import { addEmployeeText } from "@/utils/addEmployeeTranslations";
 import CreateEmployeeForm from "./CreateEmployeeForm";
@@ -26,7 +27,7 @@ async function ProtectedAddEmployeePage() {
   const { data: employee, error: employeeError } =
     await supabase
       .from("employees")
-      .select("role, is_active")
+      .select("full_name, role, is_active")
       .eq("id", user.id)
       .single();
 
@@ -51,7 +52,9 @@ async function ProtectedAddEmployeePage() {
       .order("name");
 
   return (
-    <main className="min-h-screen bg-slate-100 p-6">
+    <main className="min-h-screen bg-slate-100 text-slate-900">
+      <DashboardNavigation name={employee.full_name} role={employee.role} />
+      <div className="px-4 py-8 sm:px-6">
       <div className="mx-auto max-w-3xl">
         <Link
           href="/admin/employees"
@@ -72,6 +75,7 @@ async function ProtectedAddEmployeePage() {
    <CreateEmployeeForm departments={departments ?? []} language={language} />
 
         </section>
+      </div>
       </div>
     </main>
   );
