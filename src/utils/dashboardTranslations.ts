@@ -102,6 +102,185 @@ const translations: Record<string, Record<string, string>> = {
     "ne": "चाँडै आउँदैछ"
   }
 };
+// Dashboard detail translations
+Object.assign(translations, {
+  "Submit and track maintenance, repair, and modification requests.": {
+    "ms": "Hantar dan jejak permohonan penyelenggaraan, pembaikan dan pengubahsuaian.",
+    "zh": "提交及跟进保养、维修和改造申请。",
+    "ne": "मर्मत, सम्भार र परिमार्जनका अनुरोध पठाउनुहोस् र अनुगमन गर्नुहोस्।"
+  },
+  "Manage assigned jobs, repairs, spare parts, and handover.": {
+    "ms": "Urus kerja yang ditugaskan, pembaikan, alat ganti dan serahan.",
+    "zh": "管理已分配工作、维修、备件和交接。",
+    "ne": "तोकिएका काम, मर्मत, पार्टपुर्जा र हस्तान्तरण व्यवस्थापन गर्नुहोस्।"
+  },
+  "View equipment records, QR codes, and maintenance history.": {
+    "ms": "Lihat rekod peralatan, kod QR dan sejarah penyelenggaraan.",
+    "zh": "查看设备记录、二维码和维修历史。",
+    "ne": "उपकरण अभिलेख, QR कोड र मर्मत इतिहास हेर्नुहोस्।"
+  },
+  "Manage scheduled inspections, checklists, and reminders.": {
+    "ms": "Urus pemeriksaan berjadual, senarai semak dan peringatan.",
+    "zh": "管理定期检查、检查清单和提醒。",
+    "ne": "निर्धारित निरीक्षण, जाँचसूची र सम्झना व्यवस्थापन गर्नुहोस्।"
+  },
+  "Track part requests, purchase follow-up, issue dates, and MIV records across MRFs.": {
+    "ms": "Jejak permintaan alat ganti, susulan pembelian, tarikh pengeluaran dan rekod MIV merentas MRF.",
+    "zh": "跟进各 MRF 的备件申请、采购进度、领用日期和 MIV 记录。",
+    "ne": "विभिन्न MRF का पार्टपुर्जा अनुरोध, खरिद अनुगमन, जारी मिति र MIV अभिलेख हेर्नुहोस्।"
+  },
+  "Monitor downtime, job progress, and maintenance performance.": {
+    "ms": "Pantau masa henti, kemajuan kerja dan prestasi penyelenggaraan.",
+    "zh": "监控停机时间、工作进度和维修表现。",
+    "ne": "मेसिन बन्द समय, कामको प्रगति र मर्मत कार्यसम्पादन अनुगमन गर्नुहोस्।"
+  },
+  "Register employees, assign departments, and manage accounts.": {
+    "ms": "Daftar pekerja, tetapkan jabatan dan urus akaun.",
+    "zh": "登记员工、分配部门和管理账户。",
+    "ne": "कर्मचारी दर्ता, विभाग तोक्ने र खाता व्यवस्थापन गर्नुहोस्।"
+  },
+  "+ New request →": {
+    "ms": "+ Permohonan baharu →",
+    "zh": "+ 新建申请 →",
+    "ne": "+ नयाँ अनुरोध →"
+  },
+  "Open maintenance jobs →": {
+    "ms": "Buka kerja penyelenggaraan →",
+    "zh": "查看维修工作 →",
+    "ne": "मर्मत कार्यहरू खोल्नुहोस् →"
+  },
+  "Available to maintenance staff": {
+    "ms": "Untuk kakitangan penyelenggaraan",
+    "zh": "供维修人员使用",
+    "ne": "मर्मत कर्मचारीका लागि उपलब्ध"
+  },
+  "Open parts follow-up & MIV →": {
+    "ms": "Buka susulan alat ganti & MIV →",
+    "zh": "查看备件跟进与 MIV →",
+    "ne": "पार्टपुर्जा अनुगमन र MIV खोल्नुहोस् →"
+  },
+  "Open maintenance reports →": {
+    "ms": "Buka laporan penyelenggaraan →",
+    "zh": "查看维修报告 →",
+    "ne": "मर्मत प्रतिवेदन खोल्नुहोस् →"
+  },
+  "Available to Admin and Maintenance Supervisor": {
+    "ms": "Untuk Admin dan Penyelia Penyelenggaraan",
+    "zh": "供管理员和维修主管使用",
+    "ne": "प्रशासक र मर्मत सुपरभाइजरका लागि उपलब्ध"
+  },
+  "Manage employees →": {
+    "ms": "Urus pekerja →",
+    "zh": "管理员工 →",
+    "ne": "कर्मचारी व्यवस्थापन गर्नुहोस् →"
+  },
+  "View requests →": {
+    "ms": "Lihat permohonan →",
+    "zh": "查看申请 →",
+    "ne": "अनुरोधहरू हेर्नुहोस् →"
+  },
+  "Quick actions": {
+    "ms": "Tindakan pantas",
+    "zh": "快捷操作",
+    "ne": "द्रुत कार्यहरू"
+  },
+  "Latest 10 requests visible under your account permissions. Refresh this page to update.": {
+    "ms": "10 permohonan terkini mengikut kebenaran akaun anda. Muat semula halaman untuk kemas kini.",
+    "zh": "显示您账户权限内最新的 10 项申请。刷新页面以更新。",
+    "ne": "तपाईंको खाताको अनुमतिअनुसार पछिल्ला १० अनुरोध। अद्यावधिक गर्न पृष्ठ रिफ्रेस गर्नुहोस्।"
+  },
+  "Some request data could not be loaded. Please refresh or contact your administrator.": {
+    "ms": "Sebahagian data permohonan tidak dapat dimuatkan. Muat semula atau hubungi pentadbir.",
+    "zh": "部分申请数据无法加载。请刷新页面或联系管理员。",
+    "ne": "केही अनुरोध विवरण लोड भएन। रिफ्रेस गर्नुहोस् वा प्रशासकलाई सम्पर्क गर्नुहोस्।"
+  },
+  "MRF No.": {
+    "ms": "No. MRF",
+    "zh": "MRF 编号",
+    "ne": "MRF नम्बर"
+  },
+  "Machine": {
+    "ms": "Mesin",
+    "zh": "设备",
+    "ne": "मेसिन"
+  },
+  "Department": {
+    "ms": "Jabatan",
+    "zh": "部门",
+    "ne": "विभाग"
+  },
+  "Status": {
+    "ms": "Status",
+    "zh": "状态",
+    "ne": "स्थिति"
+  },
+  "Submitted — Malaysia time": {
+    "ms": "Dihantar — waktu Malaysia",
+    "zh": "提交时间 — 马来西亚时间",
+    "ne": "पठाइएको — मलेसिया समय"
+  },
+  "Submitted": {
+    "ms": "Dihantar",
+    "zh": "已提交",
+    "ne": "पठाइएको"
+  },
+  "Malaysia time": {
+    "ms": "Waktu Malaysia",
+    "zh": "马来西亚时间",
+    "ne": "मलेसिया समय"
+  },
+  "No requests are visible under your account permissions.": {
+    "ms": "Tiada permohonan boleh dilihat mengikut kebenaran akaun anda.",
+    "zh": "您的账户权限内暂无可见申请。",
+    "ne": "तपाईंको खाताको अनुमतिमा कुनै अनुरोध देखिँदैन।"
+  },
+  "submitted": {
+    "ms": "Dihantar",
+    "zh": "已提交",
+    "ne": "पठाइएको"
+  },
+  "hod approved": {
+    "ms": "Diluluskan HOD",
+    "zh": "部门主管已批准",
+    "ne": "विभाग प्रमुखबाट स्वीकृत"
+  },
+  "in progress": {
+    "ms": "Sedang dijalankan",
+    "zh": "进行中",
+    "ne": "काम भइरहेको"
+  },
+  "waiting spare parts": {
+    "ms": "Menunggu alat ganti",
+    "zh": "等待备件",
+    "ne": "पार्टपुर्जा पर्खिरहेको"
+  },
+  "follow up required": {
+    "ms": "Susulan diperlukan",
+    "zh": "待后续跟进",
+    "ne": "अनुगमन आवश्यक"
+  },
+  "repair completed": {
+    "ms": "Pembaikan selesai",
+    "zh": "维修已完成",
+    "ne": "मर्मत सम्पन्न"
+  },
+  "handover pending": {
+    "ms": "Menunggu serahan",
+    "zh": "待交接",
+    "ne": "हस्तान्तरण पर्खिरहेको"
+  },
+  "closed": {
+    "ms": "Ditutup",
+    "zh": "已关闭",
+    "ne": "बन्द"
+  },
+  "rejected": {
+    "ms": "Ditolak",
+    "zh": "已拒绝",
+    "ne": "अस्वीकृत"
+  }
+});
+
 export function dashboardText(language: Language, text: string): string {
   return language === "en" ? text : translations[text]?.[language] ?? text;
 }

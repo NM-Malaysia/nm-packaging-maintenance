@@ -166,7 +166,7 @@ const requestLoadError =
         <MyActions compact />
 
         {allowedRoles.includes(employee.role) && (
-          <nav aria-label="Quick actions"
+          <nav aria-label={t("Quick actions")}
             className="mb-8 grid gap-3 sm:max-w-4xl sm:grid-cols-2 lg:grid-cols-4">
             {canReviewHod && (
               <Link href="/approvals"
@@ -249,7 +249,7 @@ const requestLoadError =
               </h3>
 
               <p className="mt-2 text-sm text-slate-600">
-                {feature.description}
+                {t(feature.description)}
               </p>
 
               {feature.title === "Maintenance Requests" && canSubmit ? (
@@ -257,33 +257,33 @@ const requestLoadError =
                   href="/requests/new"
                   className="mt-5 inline-block font-semibold text-blue-700 hover:underline"
                 >
-                  + New request →
+                  {t("+ New request \u2192")}
                 </Link>
               ) : feature.title === "Maintenance Team" ? (
                 canOpenMaintenance ? (
                   <Link href="/maintenance"
                     className="mt-5 inline-block font-semibold text-blue-700 hover:underline">
-                    Open maintenance jobs →
+                    {t("Open maintenance jobs \u2192")}
                   </Link>
                 ) : (
                   <span className="mt-5 inline-block text-sm text-slate-500">
-                    Available to maintenance staff
+                    {t("Available to maintenance staff")}
                   </span>
                 )
               ) : feature.title === "Parts Follow-up & MIV" ? (
                 <Link href="/parts-followup"
                   className="mt-5 inline-block font-semibold text-blue-700 hover:underline">
-                  Open parts follow-up & MIV →
+                  {t("Open parts follow-up & MIV \u2192")}
                 </Link>
               ) : feature.title === "Reports & Dashboard" ? (
                 ["admin", "maintenance_supervisor"].includes(employee.role) ? (
                   <Link href="/reports"
                     className="mt-5 inline-block font-semibold text-blue-700 hover:underline">
-                    Open maintenance reports →
+                    {t("Open maintenance reports \u2192")}
                   </Link>
                 ) : (
                   <span className="mt-5 inline-block text-sm text-slate-500">
-                    Available to Admin and Maintenance Supervisor
+                    {t("Available to Admin and Maintenance Supervisor")}
                   </span>
                 )
               ) : feature.title === "Employee Management" ? (
@@ -291,7 +291,7 @@ const requestLoadError =
                   href="/admin/employees"
                   className="mt-5 inline-block font-semibold text-blue-700 hover:underline"
                 >
-                  Manage employees →
+                  {t("Manage employees \u2192")}
                 </Link>
               ) : (
                 feature.title === "Maintenance Requests" ? (
@@ -299,7 +299,7 @@ const requestLoadError =
                   href="/#latest-requests"
                   className="mt-5 inline-block font-semibold text-blue-700 hover:underline"
                 >
-                  View requests →
+                  {t("View requests \u2192")}
                 </Link>
               ) : (
                 <span className="mt-5 inline-block text-sm text-slate-500">
@@ -318,15 +318,13 @@ const requestLoadError =
               {t("Latest Maintenance Requests")}
             </h2>
             <p className="mt-2 text-sm text-slate-500">
-              Latest 10 requests visible under your account permissions.
-              Refresh this page to update.
+              {t("Latest 10 requests visible under your account permissions. Refresh this page to update.")}
             </p>
           </div>
 
           {requestLoadError && (
             <p role="alert" className="p-6 text-red-700">
-              Some request data could not be loaded. Please refresh or contact
-              your administrator.
+              {t("Some request data could not be loaded. Please refresh or contact your administrator.")}
             </p>
           )}
 
@@ -340,14 +338,14 @@ const requestLoadError =
                         MRF {request.mrf_number} · {request.machine_name}
                       </h3>
                       <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold capitalize text-blue-800">
-                        {request.status.replaceAll("_", " ")}
+                        {t(request.status.replaceAll("_", " "))}
                       </span>
                     </div>
                     <p className="text-sm text-slate-700">{request.department}</p>
                     <p className="text-sm text-slate-600">
-                      Submitted: {new Date(request.submitted_at).toLocaleString(
+                      {t("Submitted")}: {new Date(request.submitted_at).toLocaleString(
                         "en-MY", { timeZone: "Asia/Kuala_Lumpur" }
-                      )} (Malaysia time)
+                      )} ({t("Malaysia time")})
                     </p>
                   </article>
                 ))}
@@ -356,11 +354,11 @@ const requestLoadError =
               <table className="w-full text-left text-sm text-slate-900">
                 <thead className="bg-slate-50 text-slate-700">
                   <tr>
-                    <th className="p-4">MRF No.</th>
-                    <th className="p-4">Machine</th>
-                    <th className="p-4">Department</th>
-                    <th className="p-4">Status</th>
-                    <th className="p-4">Submitted — Malaysia time</th>
+                    <th className="p-4">{t("MRF No.")}</th>
+                    <th className="p-4">{t("Machine")}</th>
+                    <th className="p-4">{t("Department")}</th>
+                    <th className="p-4">{t("Status")}</th>
+                    <th className="p-4">{t("Submitted \u2014 Malaysia time")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -370,7 +368,7 @@ const requestLoadError =
                       <td className="p-4">{request.machine_name}</td>
                       <td className="p-4">{request.department}</td>
                       <td className="p-4 capitalize">
-                        {request.status.replaceAll("_", " ")}
+                        {t(request.status.replaceAll("_", " "))}
                       </td>
                       <td className="p-4">
                         {new Date(request.submitted_at).toLocaleString("en-MY", {
@@ -384,7 +382,7 @@ const requestLoadError =
               </div>
               {recentResult.data?.length === 0 && (
                 <p className="p-6 text-slate-500">
-                  No requests are visible under your account permissions.
+                  {t("No requests are visible under your account permissions.")}
                 </p>
               )}
             </div>
