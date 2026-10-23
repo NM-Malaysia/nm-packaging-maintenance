@@ -1,3 +1,5 @@
+import { getMyLanguage } from "@/utils/language";
+import { repairApprovalsText } from "@/utils/repairApprovalsTranslations";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/utils/supabase/server";
@@ -60,6 +62,9 @@ export default async function RepairApprovals({
 
   if (!employee?.is_active || employee.must_change_password) return null;
 
+  const language = await getMyLanguage();
+  const t = (text: string) => repairApprovalsText(language, text);
+
   const [requestResult, repairResult, approvalResult] = await Promise.all([
     supabase.from("maintenance_requests")
       .select("status").eq("id", requestId).single(),
@@ -75,9 +80,7 @@ export default async function RepairApprovals({
   ]);
 
   if (requestResult.error || repairResult.error || approvalResult.error) {
-    return <p role="alert" className="mt-5 text-red-700">
-      Repair approvals could not be loaded. Please refresh.
-    </p>;
+    return <p role="alert" className="mt-5 text-red-700">{t("Repair approvals could not be loaded. Please refresh.")}</p>;
   }
 
   const status = requestResult.data.status;
@@ -85,9 +88,7 @@ export default async function RepairApprovals({
 
   const repair = repairResult.data;
   if (!repair?.repair_reviewed_at) {
-    return <p className="mt-5 text-amber-800">
-      Recorded supervisor repair completion is required before approval.
-    </p>;
+    return <p className="mt-5 text-amber-800">{t("Recorded supervisor repair completion is required before approval.")}</p>;
   }
 
   const cutoff = new Date(repair.repair_reviewed_at).getTime();
@@ -115,20 +116,18 @@ export default async function RepairApprovals({
 
   return (
     <section className="mt-6 rounded-xl border border-slate-200 bg-white p-5">
-      <h3 className="text-lg font-semibold">Post-repair approvals</h3>
-      <p className="mt-2 text-sm text-slate-600">
-        Manager approval → Requestor Department HOD approval → Handover
-      </p>
+      <h3 className="text-lg font-semibold">{t("Post-repair approvals")}</h3>
+      <p className="mt-2 text-sm text-slate-600">{t("Manager approval → Requestor Department HOD approval → Handover")}</p>
 
       <div className="mt-4 rounded-lg bg-slate-50 p-4">
-        <p className="font-semibold">Repair summary</p>
+        <p className="font-semibold">{t("Repair summary")}</p>
         <p className="mt-2 whitespace-pre-wrap">{repair.repair_summary}</p>
         <p className="mt-2 text-sm text-slate-500">
-          Repair verified: {formatTime(repair.repair_reviewed_at)} (Malaysia time)
+          {t("Repair verified:")} {formatTime(repair.repair_reviewed_at)} ({t("Malaysia time")})
         </p>
         {repair.actual_downtime_minutes !== null && (
           <p className="mt-1 text-sm text-slate-600">
-            Machine downtime: {repair.actual_downtime_minutes} minutes
+            {t("Machine downtime:")} {repair.actual_downtime_minutes} {t("minutes")}
           </p>
         )}
       </div>
@@ -139,16 +138,16 @@ export default async function RepairApprovals({
           { title: "2. Requestor Department HOD", approval: hod },
         ].map(item => (
           <li key={item.title} className="rounded-lg border p-4">
-            <p className="font-semibold">{item.title}</p>
+            <p className="font-semibold">{t(item.title)}</p>
             <p className={"mt-2 text-sm " +
               (item.approval ? "text-green-800" : "text-amber-800")}>
-              {item.approval ? "Approved" : "Pending"}
+              {item.approval ? t("Approved") : t("Pending")}
             </p>
             {item.approval && (
               <>
                 <p className="mt-2 whitespace-pre-wrap text-sm">{item.approval.comments}</p>
                 <p className="mt-2 text-xs text-slate-500">
-                  {formatTime(item.approval.signed_at)} (Malaysia time)
+                  {formatTime(item.approval.signed_at)} ({t("Malaysia time")})
                 </p>
               </>
             )}
@@ -162,7 +161,7 @@ export default async function RepairApprovals({
           <input type="hidden" name="stage" value={stage} />
           <label className="block">
             <span className="font-medium">
-              {stage === "manager" ? "Manager review comments" : "Department HOD review comments"}
+              {stage === "manager" ? t("Manager review comments") : t("Department HOD review comments")}
             </span>
             <textarea name="comments" required maxLength={5000} rows={3}
               className="mt-2 block w-full rounded-lg border border-slate-300 p-3" />
@@ -170,19 +169,19 @@ export default async function RepairApprovals({
           <label className="flex items-start gap-3">
             <input type="checkbox" name="confirmed" value="yes" required
               className="mt-1 h-5 w-5" />
-            <span>I have reviewed the repair and approve it for the next stage.</span>
+            <span>{t("I have reviewed the repair and approve it for the next stage.")}</span>
           </label>
           <button className="rounded-lg bg-blue-700 px-5 py-3 font-semibold text-white">
             {stage === "manager"
-              ? "Approve as Maintenance Manager"
-              : "Approve as Requestor Department HOD"}
+              ? t("Approve as Maintenance Manager")
+              : t("Approve as Requestor Department HOD")}
           </button>
         </form>
       ) : (
         <p className="mt-4 text-sm text-slate-600">
-          {hod ? "Both approvals recorded. Handover is separate from these approvals."
-            : manager ? "Awaiting the requestor department's HOD approval."
-            : "Awaiting Maintenance Manager (Admin) approval."}
+          {hod ? t("Both approvals recorded. Handover is separate from these approvals.")
+            : manager ? t("Awaiting the requestor department's HOD approval.")
+            : t("Awaiting Maintenance Manager (Admin) approval.")}
         </p>
       )}
     </section>
