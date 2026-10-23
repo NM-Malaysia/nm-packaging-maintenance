@@ -1,3 +1,5 @@
+import { getMyLanguage } from "@/utils/language";
+import { jobTasksText } from "@/utils/jobTasksTranslations";
 import { maintenanceResult } from "./maintenanceNavigation";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
@@ -70,6 +72,9 @@ export default async function JobTasks({
     .eq("id", user.id)
     .maybeSingle();
 
+  const language = await getMyLanguage();
+  const t = (text: string) => jobTasksText(language, text);
+
   const canAdd = Boolean(
     employee?.is_active && !employee.must_change_password
     && ["admin", "maintenance_supervisor"].includes(employee.role)
@@ -111,23 +116,18 @@ export default async function JobTasks({
     for (const member of result.data ?? []) {
       const entries = taskMembers.get(member.task_id) ?? [];
       entries.push(names.get(member.employee_id)
-        ?? (member.employee_id === user.id ? "You" : "Team member"));
+        ?? (member.employee_id === user.id ? t("You") : t("Team member")));
       taskMembers.set(member.task_id, entries);
     }
   }
 
   return (
     <section className="mt-5 border-t pt-5">
-      <h3 className="text-lg font-semibold">Tasks under this MRF</h3>
-      <p className="mt-1 text-sm text-slate-600">
-        Additional tasks stay linked to this MRF.
-        Earlier work records remain unchanged.
-      </p>
+      <h3 className="text-lg font-semibold">{t("Tasks under this MRF")}</h3>
+      <p className="mt-1 text-sm text-slate-600">{t("Additional tasks stay linked to this MRF. Earlier work records remain unchanged.")}</p>
 
       {taskError ? (
-        <p role="alert" className="mt-3 text-red-700">
-          Tasks could not be loaded. Please refresh.
-        </p>
+        <p role="alert" className="mt-3 text-red-700">{t("Tasks could not be loaded. Please refresh.")}</p>
       ) : tasks?.length ? (
         <div className="mt-4 space-y-3">
           {tasks.map((task) => (
@@ -136,21 +136,21 @@ export default async function JobTasks({
               <div className="flex flex-wrap justify-between gap-2">
                 <h4 className="font-semibold">{task.title}</h4>
                 <span className="text-sm text-blue-800">
-                  {task.status.replaceAll("_", " ")}
+                  {t(task.status.replaceAll("_", " "))}
                 </span>
               </div>
               {task.description && (
                 <p className="mt-2 whitespace-pre-wrap">{task.description}</p>
               )}
               <p className="mt-2 text-sm text-slate-600">
-                Assigned: {memberError || teamResult.error
-                  ? "Team details could not be loaded"
-                  : (taskMembers.get(task.id) ?? []).join(", ") || "No members"}
+                {t("Assigned:")} {memberError || teamResult.error
+                  ? t("Team details could not be loaded")
+                  : (taskMembers.get(task.id) ?? []).join(", ") || t("No members")}
               </p>
               <p className="mt-1 text-sm text-slate-500">
-                Created: {new Date(task.created_at).toLocaleString("en-MY", {
+                {t("Created:")} {new Date(task.created_at).toLocaleString("en-MY", {
                   timeZone: "Asia/Kuala_Lumpur",
-                })} (Malaysia time)
+                })} ({t("Malaysia time")})
               </p>
               <TaskWork taskId={task.id}
                 requestStatus={status} taskStatus={task.status} />
@@ -160,38 +160,32 @@ export default async function JobTasks({
           ))}
         </div>
       ) : (
-        <p className="mt-3 text-sm text-slate-500">
-          No additional tasks have been created.
-        </p>
+        <p className="mt-3 text-sm text-slate-500">{t("No additional tasks have been created.")}</p>
       )}
 
       {canAdd && (
         <details className="mt-5 rounded-lg border border-slate-200 p-4">
-          <summary className="cursor-pointer font-semibold text-blue-700">
-            + Add Task
-          </summary>
+          <summary className="cursor-pointer font-semibold text-blue-700">{t("+ Add Task")}</summary>
           {staffError ? (
-            <p className="mt-3 text-red-700">
-              Staff list could not be loaded. Please refresh.
-            </p>
+            <p className="mt-3 text-red-700">{t("Staff list could not be loaded. Please refresh.")}</p>
           ) : !staff.length ? (
-            <p className="mt-3">No active maintenance staff available.</p>
+            <p className="mt-3">{t("No active maintenance staff available.")}</p>
           ) : (
             <form action={addTask} className="mt-4 space-y-4">
               <input type="hidden" name="request_id" value={requestId} />
               <label className="block">
-                <span className="font-medium">Task title</span>
+                <span className="font-medium">{t("Task title")}</span>
                 <input name="title" required maxLength={200}
-                  placeholder="Replace bearing No. 1234"
+                  placeholder={t("Replace bearing No. 1234")}
                   className="mt-2 block w-full rounded-lg border border-slate-300 p-3" />
               </label>
               <label className="block">
-                <span className="font-medium">Task instructions</span>
+                <span className="font-medium">{t("Task instructions")}</span>
                 <textarea name="description" maxLength={5000} rows={3}
                   className="mt-2 block w-full rounded-lg border border-slate-300 p-3" />
               </label>
               <fieldset>
-                <legend className="font-medium">Assign team members</legend>
+                <legend className="font-medium">{t("Assign team members")}</legend>
                 <div className="mt-2 grid gap-3 sm:grid-cols-2">
                   {staff.map((member) => (
                     <label key={member.id}
@@ -201,7 +195,7 @@ export default async function JobTasks({
                       <span>
                         {member.full_name} ({member.employee_id})
                         <span className="block text-sm text-slate-500">
-                          {member.role.replaceAll("_", " ")}
+                          {t(member.role.replaceAll("_", " "))}
                         </span>
                       </span>
                     </label>
@@ -209,9 +203,7 @@ export default async function JobTasks({
                 </div>
               </fieldset>
               <button type="submit"
-                className="rounded-lg bg-blue-700 px-5 py-3 font-semibold text-white">
-                Create task
-              </button>
+                className="rounded-lg bg-blue-700 px-5 py-3 font-semibold text-white">{t("Create task")}</button>
             </form>
           )}
         </details>
