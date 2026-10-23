@@ -1,3 +1,5 @@
+import { getMyLanguage } from "@/utils/language";
+import { newRequestText } from "@/utils/newRequestTranslations";
 import Link from "next/link";
 import { Suspense } from "react";
 import { connection } from "next/server";
@@ -15,6 +17,8 @@ async function NewRequest() {
     .eq("id", user.id).maybeSingle();
   if (employeeError || !employee || !employee.is_active) redirect("/login?error=access_denied");
   if (employee.must_change_password) redirect("/change-password");
+  const language = await getMyLanguage();
+  const t = (text: string) => newRequestText(language, text);
   const allowed = ["requestor", "department_hod"].includes(employee.role);
   const { data: department, error: departmentError } = allowed
     ? await supabase.from("departments").select("name").eq("id", employee.department_id).maybeSingle()
@@ -22,13 +26,13 @@ async function NewRequest() {
   return (
     <main className="min-h-screen bg-slate-100 px-4 py-8 text-slate-900">
       <div className="mx-auto max-w-3xl">
-        <Link href="/" className="text-sm font-medium text-blue-700 underline">← Back to dashboard</Link>
+        <Link href="/" className="text-sm font-medium text-blue-700 underline">{t("← Back to dashboard")}</Link>
         <p className="mt-6 text-sm font-semibold text-slate-600">NM PACKAGING (M) SDN. BHD.</p>
-        <h1 className="mt-2 text-3xl font-bold">New Maintenance Request</h1>
-        <p className="mb-6 mt-2 text-slate-600">Maintenance / repair / modification request form</p>
-        {!allowed ? <p role="alert" className="rounded-xl bg-white p-6">Only Requestors and Department HODs can submit MRFs under the current company permissions.</p>
-          : departmentError || !department ? <p role="alert" className="rounded-xl bg-white p-6">Unable to load your department. Contact your administrator.</p>
-          : <RequestForm name={employee.full_name} department={department.name} />}
+        <h1 className="mt-2 text-3xl font-bold">{t("New Maintenance Request")}</h1>
+        <p className="mb-6 mt-2 text-slate-600">{t("Maintenance / repair / modification request form")}</p>
+        {!allowed ? <p role="alert" className="rounded-xl bg-white p-6">{t("Only Requestors and Department HODs can submit MRFs under the current company permissions.")}</p>
+          : departmentError || !department ? <p role="alert" className="rounded-xl bg-white p-6">{t("Unable to load your department. Contact your administrator.")}</p>
+          : <RequestForm name={employee.full_name} department={department.name} language={language} />}
       </div>
     </main>
   );
