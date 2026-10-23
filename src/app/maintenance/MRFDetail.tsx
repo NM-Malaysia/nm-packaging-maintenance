@@ -1,3 +1,5 @@
+import { getMyLanguage } from "@/utils/language";
+import { mrfDetailText } from "@/utils/mrfDetailTranslations";
 import PartsFollowup from "./PartsFollowup";
 import TemporaryRepair from "./TemporaryRepair";
 import Handover from "./Handover";
@@ -114,6 +116,9 @@ async function MaintenanceContent({
     redirect("/");
   }
 
+  const language = await getMyLanguage();
+  const t = (text: string) => mrfDetailText(language, text);
+
   const canAssign = ["admin", "maintenance_supervisor"].includes(employee.role);
   const params = await searchParams;
 
@@ -226,16 +231,16 @@ async function MaintenanceContent({
     <DetailForms><main className="min-h-screen bg-slate-100 px-6 py-8">
       <div className="mx-auto max-w-6xl">
         <Link href={maintenanceBack(params.back)} className="text-blue-700 hover:underline">
-          ← Back to maintenance list
+          {t("\u2190 Back to maintenance list")}
         </Link>
         <h1 className="mt-6 text-3xl font-bold text-slate-900">
-          MRF Details
+          {t("MRF Details")}
         </h1>
         <p className="mt-2 text-slate-600">
-          {employee.full_name} · {employee.role.replaceAll("_", " ")}
+          {employee.full_name} · {t(employee.role.replaceAll("_", " "))}
         </p>
         <p className="mt-2 text-sm text-slate-600">
-          Work, tasks and history for this MRF.
+          {t("Work, tasks and history for this MRF.")}
         </p>
 
         {params.result && messages[params.result] && (
@@ -246,7 +251,7 @@ async function MaintenanceContent({
 
         {requestError || assignmentError ? (
           <p role="alert" className="mt-6 rounded-xl bg-white p-6 text-red-700">
-            Requests or assignments could not be loaded. Please refresh.
+            {t("Requests or assignments could not be loaded. Please refresh.")}
           </p>
         ) : (
           <div className="mt-6 space-y-5">
@@ -268,27 +273,27 @@ async function MaintenanceContent({
                       MRF {request.mrf_number} · {request.machine_name}
                     </h2>
                     <span className="rounded-full bg-blue-50 px-3 py-1 text-sm text-blue-800">
-                      {request.status.replaceAll("_", " ")}
+                      {t(request.status.replaceAll("_", " "))}
                     </span>
                   </div>
                   <p className="mt-2 text-slate-600">{request.department}</p>
                   <p className="mt-4 whitespace-pre-wrap">{request.description}</p>
                   <div className="mt-4">
-                    <h3 className="font-semibold">Assigned team</h3>
+                    <h3 className="font-semibold">{t("Assigned team")}</h3>
                     {team.length === 0 ? (
-                      <p className="mt-2 text-slate-600">Not assigned</p>
+                      <p className="mt-2 text-slate-600">{t("Not assigned")}</p>
                     ) : (
                       <ul className="mt-2 space-y-2">
                         {team.map((member) => (
                           <li key={member.employee_id}>
                             <span className="font-medium">
                               {member.full_name} ({member.employee_number})
-                              {member.employee_id === user.id ? " — you" : ""}
+                              {member.employee_id === user.id ? " — " + t("you") : ""}
                             </span>
                             <span className="block text-sm text-slate-500">
-                              Assigned: {new Date(member.assigned_at).toLocaleString(
+                              {t("Assigned")}: {new Date(member.assigned_at).toLocaleString(
                                 "en-MY", { timeZone: "Asia/Kuala_Lumpur" }
-                              )} (Malaysia time)
+                              )} ({t("Malaysia time")})
                             </span>
                           </li>
                         ))}
@@ -302,31 +307,30 @@ async function MaintenanceContent({
                     <div className="mt-5 border-t pt-5">
                       {workError ? (
                         <p role="alert" className="text-red-700">
-                          Your work record could not be loaded. Please refresh.
+                          {t("Your work record could not be loaded. Please refresh.")}
                         </p>
                       ) : workMap.has(request.id) ? (
                         <p className="font-medium text-green-800">
-                          Your work started: {new Date(
+                          {t("Your work started")}: {new Date(
                             workMap.get(request.id)!
                           ).toLocaleString("en-MY", {
                             timeZone: "Asia/Kuala_Lumpur",
-                          })} (Malaysia time)
+                          })} ({t("Malaysia time")})
                         </p>
                       ) : ["hod_approved", "in_progress"].includes(request.status) ? (
                         <form action={startWork}>
                           <input type="hidden" name="request_id" value={request.id} />
                           <p className="mb-3 text-sm text-slate-600">
-                            Start Work records your own start time.
-                            The first team member to start moves this request to In Progress.
+                            {t("Start Work records your own start time. The first team member to start moves this request to In Progress.")}
                           </p>
                           <button type="submit"
                             className="rounded-lg bg-green-700 px-5 py-3 font-semibold text-white">
-                            Start Work
+                            {t("Start Work")}
                           </button>
                         </form>
                       ) : (
                         <p className="text-sm text-slate-600">
-                          Starting work is unavailable at this request stage.
+                          {t("Starting work is unavailable at this request stage.")}
                         </p>
                       )}
                     </div>
@@ -350,21 +354,20 @@ async function MaintenanceContent({
                   {canAssign && editable && (
                     technicianError ? (
                       <p className="mt-4 text-red-700">
-                        Team member list could not be loaded.
+                        {t("Team member list could not be loaded.")}
                       </p>
                     ) : technicians.length === 0 ? (
                       <p className="mt-4 text-amber-700">
-                        No active technicians or supervisors are available.
+                        {t("No active technicians or supervisors are available.")}
                       </p>
                     ) : (
                       <form action={assignRequest}
                         className="mt-5 border-t pt-5">
                         <input type="hidden" name="request_id" value={request.id} />
                         <fieldset>
-                          <legend className="font-semibold">Assign job team</legend>
+                          <legend className="font-semibold">{t("Assign job team")}</legend>
                           <p className="mt-1 text-sm text-slate-600">
-                            Select one or more technicians or supervisors.
-                            Unchecking a member removes them when you save.
+                            {t("Select one or more technicians or supervisors. Unchecking a member removes them when you save.")}
                           </p>
                           <div className="mt-4 grid gap-3 sm:grid-cols-2">
                             {technicians.map((member) => (
@@ -379,7 +382,7 @@ async function MaintenanceContent({
                                     {member.full_name} ({member.employee_id})
                                   </span>
                                   <span className="text-sm text-slate-500">
-                                    {member.role.replaceAll("_", " ")}
+                                    {t(member.role.replaceAll("_", " "))}
                                   </span>
                                 </span>
                               </label>
@@ -388,7 +391,7 @@ async function MaintenanceContent({
                         </fieldset>
                         <button type="submit"
                           className="mt-5 rounded-lg bg-blue-700 px-5 py-3 font-semibold text-white">
-                          Save job team
+                          {t("Save job team")}
                         </button>
                       </form>
                     )
@@ -398,7 +401,7 @@ async function MaintenanceContent({
             })}
             {requests?.length === 0 && (
               <p className="rounded-xl bg-white p-6">
-                This MRF is unavailable or you do not have permission to view it.
+                {t("This MRF is unavailable or you do not have permission to view it.")}
               </p>
             )}
           </div>
