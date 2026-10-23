@@ -1,3 +1,5 @@
+import { getMyLanguage } from "@/utils/language";
+import { workDetailsText } from "@/utils/workDetailsTranslations";
 import { maintenanceResult } from "./maintenanceNavigation";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
@@ -79,6 +81,9 @@ export default async function WorkDetails({
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
 
+  const language = await getMyLanguage();
+  const t = (text: string) => workDetailsText(language, text);
+
   const { data: record, error } = await supabase
     .from("request_work_records")
     .select("id, work_details, completed_at")
@@ -87,9 +92,7 @@ export default async function WorkDetails({
     .maybeSingle();
 
   if (error) {
-    return <p role="alert" className="mt-4 text-red-700">
-      Your work details could not be loaded. Please refresh.
-    </p>;
+    return <p role="alert" className="mt-4 text-red-700">{t("Your work details could not be loaded. Please refresh.")}</p>;
   }
   if (!record) return null;
 
@@ -106,9 +109,9 @@ export default async function WorkDetails({
       ? new Date(session.ended_at).getTime() : loadedAt;
     return total + Math.max(0, end - new Date(session.started_at).getTime());
   }, 0) / 1000);
-  const duration = `${Math.floor(totalSeconds / 3600)}h ${
+  const duration = `${Math.floor(totalSeconds / 3600)}${t("h")} ${
     Math.floor((totalSeconds % 3600) / 60)
-  }m ${totalSeconds % 60}s`;
+  }${t("m")} ${totalSeconds % 60}${t("s")}`;
 
   const editable = !record.completed_at && [
     "in_progress", "waiting_spare_parts", "follow_up_required",
@@ -116,21 +119,17 @@ export default async function WorkDetails({
 
   return (
     <div className="mt-5 rounded-lg bg-slate-50 p-5">
-      <h3 className="font-semibold">My work details</h3>
+      <h3 className="font-semibold">{t("My work details")}</h3>
 
       {sessionError ? (
-        <p role="alert" className="mt-3 text-red-700">
-          Work sessions could not be loaded. Refresh to try again.
-        </p>
+        <p role="alert" className="mt-3 text-red-700">{t("Work sessions could not be loaded. Refresh to try again.")}</p>
       ) : (
         <div className="mt-3 rounded-lg border border-slate-200 bg-white p-4">
           <p className="font-medium">
-            {record.completed_at ? "Finished" : running ? "Working" : "Paused"}
-            {" · Working time: "}{duration}
+            {record.completed_at ? t("Finished") : running ? t("Working") : t("Paused")}
+            {" · "}{t("Working time:")}{" "}{duration}
           </p>
-          <p className="mt-1 text-sm text-slate-500">
-            Excludes paused time. Refresh to update the duration.
-          </p>
+          <p className="mt-1 text-sm text-slate-500">{t("Excludes paused time. Refresh to update the duration.")}</p>
           {editable && (
             <form action={toggleWorkSession} className="mt-3">
               <input type="hidden" name="request_id" value={requestId} />
@@ -138,16 +137,14 @@ export default async function WorkDetails({
                 value={running ? "pause" : "resume"} />
               <button type="submit"
                 className="rounded-lg bg-amber-700 px-5 py-3 font-semibold text-white">
-                {running ? "Pause Work" : "Resume Work"}
+                {running ? t("Pause Work") : t("Resume Work")}
               </button>
-              <p className="mt-2 text-sm text-slate-600">
-                Save any edited work details before pausing or resuming.
-              </p>
+              <p className="mt-2 text-sm text-slate-600">{t("Save any edited work details before pausing or resuming.")}</p>
             </form>
           )}
           {sessions && sessions.length > 0 && (
             <details className="mt-3 text-sm text-slate-600">
-              <summary className="cursor-pointer">Work sessions</summary>
+              <summary className="cursor-pointer">{t("Work sessions")}</summary>
               <ul className="mt-2 space-y-2">
                 {sessions.map((session, index) => (
                   <li key={`${session.started_at}-${index}`}>
@@ -159,8 +156,8 @@ export default async function WorkDetails({
                       ? new Date(session.ended_at).toLocaleString("en-MY", {
                           timeZone: "Asia/Kuala_Lumpur",
                         })
-                      : "Working"}
-                    {" (Malaysia time)"}
+                      : t("Working")}
+                    {" ("}{t("Malaysia time")}{")"}
                   </li>
                 ))}
               </ul>
@@ -171,9 +168,9 @@ export default async function WorkDetails({
 
       {record.completed_at && (
         <p className="mt-2 font-medium text-green-800">
-          Your work finished: {new Date(record.completed_at).toLocaleString(
+          {t("Your work finished:")} {new Date(record.completed_at).toLocaleString(
             "en-MY", { timeZone: "Asia/Kuala_Lumpur" }
-          )} (Malaysia time)
+          )} ({t("Malaysia time")})
         </p>
       )}
 
@@ -181,31 +178,22 @@ export default async function WorkDetails({
         <form action={saveWork} className="mt-3">
           <input type="hidden" name="request_id" value={requestId} />
           <label className="block">
-            <span className="text-sm text-slate-600">
-              Record your inspection, repair actions and findings.
-            </span>
+            <span className="text-sm text-slate-600">{t("Record your inspection, repair actions and findings.")}</span>
             <textarea name="work_details" rows={5} maxLength={10000}
               defaultValue={record.work_details}
               className="mt-2 block w-full rounded-lg border border-slate-300 bg-white p-3" />
           </label>
-          <p className="mt-2 text-sm text-slate-600">
-            Finish My Work records your completion time and locks your entry.
-            The overall request status stays unchanged for supervisor review.
-          </p>
+          <p className="mt-2 text-sm text-slate-600">{t("Finish My Work records your completion time and locks your entry. The overall request status stays unchanged for supervisor review.")}</p>
           <div className="mt-4 flex flex-wrap gap-3">
             <button type="submit" name="work_action" value="save"
-              className="rounded-lg bg-blue-700 px-5 py-3 font-semibold text-white">
-              Save Work Details
-            </button>
+              className="rounded-lg bg-blue-700 px-5 py-3 font-semibold text-white">{t("Save Work Details")}</button>
             <button type="submit" name="work_action" value="finish"
-              className="rounded-lg bg-green-700 px-5 py-3 font-semibold text-white">
-              Finish My Work
-            </button>
+              className="rounded-lg bg-green-700 px-5 py-3 font-semibold text-white">{t("Finish My Work")}</button>
           </div>
         </form>
       ) : (
         <p className="mt-3 whitespace-pre-wrap text-slate-700">
-          {record.work_details || "No work details recorded."}
+          {record.work_details || t("No work details recorded.")}
         </p>
       )}
     </div>
