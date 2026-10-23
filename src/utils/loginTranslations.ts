@@ -97,6 +97,20 @@ const translations: Record<string, Record<string, string>> = {
   }
 };
 
+// Login API error translations
+Object.assign(translations, {
+  "Invalid Employee ID or password.": {
+    "ms": "ID Pekerja atau kata laluan tidak sah.",
+    "zh": "员工编号或密码不正确。",
+    "ne": "कर्मचारी नम्बर वा पासवर्ड गलत छ।"
+  },
+  "Unable to complete login. Please try again.": {
+    "ms": "Log masuk tidak dapat diselesaikan. Sila cuba lagi.",
+    "zh": "无法完成登录，请重试。",
+    "ne": "लगइन पूरा गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।"
+  }
+});
+
 export function loginText(language: LoginLanguage, text: string): string {
   return language === "en" ? text : translations[text]?.[language] ?? text;
 }
