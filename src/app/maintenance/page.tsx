@@ -1,3 +1,4 @@
+import DashboardNavigation from "../DashboardNavigation";
 import { getMyLanguage } from "@/utils/language";
 import { maintenanceText } from "@/utils/maintenanceTranslations";
 import Link from "next/link";
@@ -251,7 +252,9 @@ async function MaintenanceList({ searchParams }: { searchParams: Promise<Query> 
   const field = "mt-1 block min-w-0 w-full max-w-full box-border rounded-lg border border-slate-300 bg-white p-2 text-base text-slate-900 placeholder:text-slate-500 sm:text-sm";
 
   return (
-    <main className="min-h-screen bg-slate-100 px-4 py-8 text-slate-900 sm:px-6">
+    <main className="min-h-screen bg-slate-100 text-slate-900">
+      <DashboardNavigation name={employee.full_name} role={employee.role} />
+      <div className="px-4 py-8 sm:px-6">
       <div className="mx-auto max-w-7xl">
         <Link href="/" className="text-blue-700 hover:underline">{t("\u2190 Dashboard")}</Link>
         <h1 className="mt-5 text-3xl font-bold text-slate-900">{t("Maintenance Team")}</h1>
@@ -477,6 +480,7 @@ async function MaintenanceList({ searchParams }: { searchParams: Promise<Query> 
             </nav>
           </>
         )}
+      </div>
       </div>
     </main>
   );
