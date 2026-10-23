@@ -1,3 +1,4 @@
+import DashboardNavigation from "../../DashboardNavigation";
 import { getMyLanguage } from "@/utils/language";
 import { employeeText } from "@/utils/employeeTranslations";
 import EmployeeStatusButton from "./EmployeeStatusButton";
@@ -27,7 +28,7 @@ async function ProtectedEmployeeManagement() {
   const { data: currentEmployee, error: employeeError } =
     await supabase
       .from("employees")
-      .select("role, is_active")
+      .select("full_name, role, is_active")
       .eq("id", user.id)
       .single();
 
@@ -63,7 +64,9 @@ async function ProtectedEmployeeManagement() {
   );
 
   return (
-    <main className="min-h-screen bg-slate-100 p-6">
+    <main className="min-h-screen bg-slate-100 text-slate-900">
+      <DashboardNavigation name={currentEmployee.full_name} role={currentEmployee.role} />
+      <div className="px-4 py-8 sm:px-6">
       <div className="mx-auto max-w-6xl">
         <Link
           href="/"
@@ -155,6 +158,7 @@ async function ProtectedEmployeeManagement() {
             </div>
           )}
         </section>
+      </div>
       </div>
     </main>
   );
