@@ -3,12 +3,22 @@
 
 import { forgotPasswordText } from "@/utils/forgotPasswordTranslations";
 import { isLoginLanguage, type LoginLanguage } from "@/utils/loginTranslations";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { supabase } from "../connection-test/supabase";
 
 export default function ForgotPasswordPage() {
   const [language, setLanguage] = useState<LoginLanguage>("en");
+
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem("nm-auth-language");
+      if (saved && isLoginLanguage(saved)) setLanguage(saved);
+    } catch {
+      // Language selection still works if browser storage is unavailable.
+    }
+  }, []);
+
   const t = (text: string) => forgotPasswordText(language, text);
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
@@ -63,7 +73,14 @@ export default function ForgotPasswordPage() {
             disabled={loading}
             onChange={(event) => {
               const next = event.target.value;
-              if (isLoginLanguage(next)) setLanguage(next);
+              if (isLoginLanguage(next)) {
+                setLanguage(next);
+                try {
+                  window.localStorage.setItem("nm-auth-language", next);
+                } catch {
+                  // Keep the selected language for this page.
+                }
+              }
             }}
             className="w-full rounded-lg border border-slate-300 bg-white p-3 text-slate-900"
           >

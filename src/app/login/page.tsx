@@ -2,11 +2,21 @@
 "use client";
 
 import { loginText, isLoginLanguage, type LoginLanguage } from "@/utils/loginTranslations";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 
 export default function LoginPage() {
   const [language, setLanguage] = useState<LoginLanguage>("en");
+
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem("nm-auth-language");
+      if (saved && isLoginLanguage(saved)) setLanguage(saved);
+    } catch {
+      // Language selection still works if browser storage is unavailable.
+    }
+  }, []);
+
   const t = (text: string) => loginText(language, text);
   const [employeeId, setEmployeeId] = useState("");
   const [password, setPassword] = useState("");
@@ -82,7 +92,14 @@ export default function LoginPage() {
             disabled={loading}
             onChange={(event) => {
               const next = event.target.value;
-              if (isLoginLanguage(next)) setLanguage(next);
+              if (isLoginLanguage(next)) {
+                setLanguage(next);
+                try {
+                  window.localStorage.setItem("nm-auth-language", next);
+                } catch {
+                  // Keep the selected language for this page.
+                }
+              }
             }}
             className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-slate-900"
           >
