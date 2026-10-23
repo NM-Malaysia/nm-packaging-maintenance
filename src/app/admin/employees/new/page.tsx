@@ -1,3 +1,5 @@
+import { getMyLanguage } from "@/utils/language";
+import { addEmployeeText } from "@/utils/addEmployeeTranslations";
 import CreateEmployeeForm from "./CreateEmployeeForm";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -37,6 +39,9 @@ async function ProtectedAddEmployeePage() {
     redirect("/");
   }
 
+  const language = await getMyLanguage();
+  const t = (text: string) => addEmployeeText(language, text);
+
   // Load active departments
   const { data: departments, error: departmentsError } =
     await supabase
@@ -51,29 +56,21 @@ async function ProtectedAddEmployeePage() {
         <Link
           href="/admin/employees"
           className="text-sm font-medium text-blue-700 hover:underline"
-        >
-          ← Back to Employee Management
-        </Link>
+        >{t("← Back to Employee Management")}</Link>
 
         <div className="mt-6 mb-6">
-          <h1 className="text-3xl font-bold text-slate-900">
-            Add Employee
-          </h1>
+          <h1 className="text-3xl font-bold text-slate-900">{t("Add Employee")}</h1>
           <p className="mt-2 text-slate-600">
             NM PACKAGING (M) SDN. BHD.
           </p>
-          <p className="mt-1 text-sm text-slate-500">
-            Admin access only
-          </p>
+          <p className="mt-1 text-sm text-slate-500">{t("Admin access only")}</p>
         </div>
 
         <section className="rounded-xl bg-white p-6 shadow-sm">
-          <h2 className="mb-6 text-lg font-semibold text-slate-900">
-            Employee Details
-          </h2>
+          <h2 className="mb-6 text-lg font-semibold text-slate-900">{t("Employee Details")}</h2>
 
-   <CreateEmployeeForm departments={departments ?? []} />      
-            
+   <CreateEmployeeForm departments={departments ?? []} language={language} />
+
         </section>
       </div>
     </main>
