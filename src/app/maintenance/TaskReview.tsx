@@ -1,3 +1,5 @@
+import { getMyLanguage } from "@/utils/language";
+import { taskReviewText } from "@/utils/taskReviewTranslations";
 import { maintenanceResult } from "./maintenanceNavigation";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
@@ -64,6 +66,9 @@ export default async function TaskReview({
     return null;
   }
 
+  const language = await getMyLanguage();
+  const t = (text: string) => taskReviewText(language, text);
+
   const [taskResult, memberResult, workResult, nameResult] = await Promise.all([
     supabase.from("maintenance_tasks")
       .select("status, completed_at, review_notes")
@@ -78,9 +83,7 @@ export default async function TaskReview({
 
   if (taskResult.error || memberResult.error
       || workResult.error || nameResult.error) {
-    return <p role="alert" className="mt-4 text-red-700">
-      Task review could not be loaded. Please refresh.
-    </p>;
+    return <p role="alert" className="mt-4 text-red-700">{t("Task review could not be loaded. Please refresh.")}</p>;
   }
 
   const records = workResult.data ?? [];
@@ -125,7 +128,7 @@ export default async function TaskReview({
 
   return (
     <div className="mt-5 border-t pt-4">
-      <h5 className="font-semibold">Supervisor task review</h5>
+      <h5 className="font-semibold">{t("Supervisor task review")}</h5>
       <div className="mt-3 space-y-3">
         {members.map((member) => {
           const record = workMap.get(member.employee_id);
@@ -136,29 +139,29 @@ export default async function TaskReview({
             <div key={member.employee_id}
               className="rounded-lg border bg-white p-4">
               <p className="font-semibold">
-                {nameMap.get(member.employee_id) ?? "Assigned team member"}
+                {nameMap.get(member.employee_id) ?? t("Assigned team member")}
               </p>
               <p className="mt-1 text-sm">
-                {!record ? "Not started"
-                  : record.completed_at ? "Personal work finished"
-                  : "Personal work unfinished"}
+                {!record ? t("Not started")
+                  : record.completed_at ? t("Personal work finished")
+                  : t("Personal work unfinished")}
               </p>
               {record && (
                 <>
                   <p className="mt-1 text-sm text-slate-600">
-                    Started: {formatTime(record.started_at)}
+                    {t("Started:")} {formatTime(record.started_at)}
                     {record.completed_at
-                      ? ` · Finished: ${formatTime(record.completed_at)}` : ""}
-                    {" (Malaysia time)"}
+                      ? ` · ${t("Finished:")} ${formatTime(record.completed_at)}` : ""}
+                    {" ("}{t("Malaysia time")}{")"}
                   </p>
                   <p className="mt-1 text-sm text-slate-600">
-                    Working time: {sessionError ? "Unavailable"
-                      : `${Math.floor(seconds / 3600)}h ${
-                          Math.floor(seconds % 3600 / 60)}m ${seconds % 60}s`}
-                    {" · excludes pauses"}
+                    {t("Working time:")} {sessionError ? t("Unavailable")
+                      : `${Math.floor(seconds / 3600)}${t("h")} ${
+                          Math.floor(seconds % 3600 / 60)}${t("m")} ${seconds % 60}${t("s")}`}
+                    {" · "}{t("excludes pauses")}
                   </p>
                   <p className="mt-2 whitespace-pre-wrap">
-                    {record.work_details || "No work details recorded."}
+                    {record.work_details || t("No work details recorded.")}
                   </p>
                 </>
               )}
@@ -169,10 +172,10 @@ export default async function TaskReview({
 
       {taskResult.data.status === "completed" ? (
         <div className="mt-4 rounded-lg bg-green-50 p-4 text-green-900">
-          <p className="font-semibold">Task completed after review</p>
+          <p className="font-semibold">{t("Task completed after review")}</p>
           {taskResult.data.completed_at && (
             <p className="mt-1 text-sm">
-              {formatTime(taskResult.data.completed_at)} (Malaysia time)
+              {formatTime(taskResult.data.completed_at)} ({t("Malaysia time")})
             </p>
           )}
           <p className="mt-2 whitespace-pre-wrap">{taskResult.data.review_notes}</p>
@@ -183,34 +186,26 @@ export default async function TaskReview({
           <form action={completeTask} className="mt-4 space-y-3">
             <input type="hidden" name="task_id" value={taskId} />
             <label className="block">
-              <span className="font-medium">Review / verification notes</span>
+              <span className="font-medium">{t("Review / verification notes")}</span>
               <textarea name="review_notes" required maxLength={5000} rows={3}
                 className="mt-2 block w-full rounded-lg border border-slate-300 bg-white p-3" />
             </label>
             <label className="flex items-start gap-3">
               <input type="checkbox" name="confirmed" value="yes" required
                 className="mt-1 h-5 w-5" />
-              <span>I have reviewed the work and verified this task is complete.</span>
+              <span>{t("I have reviewed the work and verified this task is complete.")}</span>
             </label>
-            <p className="text-sm text-slate-600">
-              This completes this task only. The overall MRF stays open.
-            </p>
-            <button className="rounded-lg bg-green-700 px-5 py-3 font-semibold text-white">
-              Confirm Task Completed
-            </button>
+            <p className="text-sm text-slate-600">{t("This completes this task only. The overall MRF stays open.")}</p>
+            <button className="rounded-lg bg-green-700 px-5 py-3 font-semibold text-white">{t("Confirm Task Completed")}</button>
           </form>
         ) : (
           <p className="mt-4 text-sm text-amber-800">
-            Every assigned person must finish their part with notes before
-            task completion can be confirmed. Refresh after they finish.
-            {sessionError ? " Work-session data could not be loaded." : ""}
+            {t("Every assigned person must finish their part with notes before task completion can be confirmed. Refresh after they finish.")}
+            {sessionError ? " " + t("Work-session data could not be loaded.") : ""}
           </p>
         )
       ) : (
-        <p className="mt-4 text-sm text-slate-600">
-          Task completion review becomes available when the task and MRF
-          are both In Progress.
-        </p>
+        <p className="mt-4 text-sm text-slate-600">{t("Task completion review becomes available when the task and MRF are both In Progress.")}</p>
       )}
     </div>
   );
