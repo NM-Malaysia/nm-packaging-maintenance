@@ -1,3 +1,4 @@
+import DashboardNavigation from "../DashboardNavigation";
 import { getMyLanguage } from "@/utils/language";
 import { reportText } from "@/utils/reportTranslations";
 import PartsReport from "./PartsReport";
@@ -103,7 +104,9 @@ async function Reports({ searchParams }: { searchParams: Promise<Query> }) {
   const field = "mt-2 block min-w-0 w-full max-w-full box-border appearance-none rounded-lg border border-slate-300 bg-white p-3 text-base [&::-webkit-date-and-time-value]:text-left";
 
   return (
-    <main className="min-h-screen bg-slate-100 px-4 py-8 text-slate-900 sm:px-6">
+    <main className="min-h-screen bg-slate-100 text-slate-900">
+      <DashboardNavigation name={employee.full_name} role={employee.role} />
+      <div className="px-4 py-8 sm:px-6">
       <div className="mx-auto max-w-7xl">
         <Link href="/" className="text-blue-700 hover:underline">{t("← Dashboard")}</Link>
         <h1 className="mt-5 text-3xl font-bold">{t("Maintenance Reports")}</h1>
@@ -232,6 +235,7 @@ async function Reports({ searchParams }: { searchParams: Promise<Query> }) {
             <p className="mt-5 text-sm text-slate-600">{t("Lead times use elapsed calendar hours, including waiting and pauses. Missing or invalid timestamps are excluded from averages. Downtime totals sum individual MRF records and may overlap on the same machine; they are not plant availability. Each MRF currently records one downtime interval.")}</p>
           </>
         )}
+      </div>
       </div>
     </main>
   );

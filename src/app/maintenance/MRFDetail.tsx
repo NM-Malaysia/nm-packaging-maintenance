@@ -1,3 +1,4 @@
+import DashboardNavigation from "../DashboardNavigation";
 import { getMyLanguage } from "@/utils/language";
 import { mrfDetailText } from "@/utils/mrfDetailTranslations";
 import PartsFollowup from "./PartsFollowup";
@@ -228,7 +229,9 @@ async function MaintenanceContent({
   };
 
   return (
-    <DetailForms><main className="min-h-screen bg-slate-100 px-6 py-8">
+    <DetailForms><main className="min-h-screen bg-slate-100 text-slate-900">
+      <DashboardNavigation name={employee.full_name} role={employee.role} />
+      <div className="px-4 py-8 sm:px-6">
       <div className="mx-auto max-w-6xl">
         <Link href={maintenanceBack(params.back)} className="text-blue-700 hover:underline">
           {t("\u2190 Back to maintenance list")}
@@ -406,6 +409,7 @@ async function MaintenanceContent({
             )}
           </div>
         )}
+      </div>
       </div>
     </main></DetailForms>
   );
