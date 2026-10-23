@@ -1,3 +1,5 @@
+import { getMyLanguage } from "@/utils/language";
+import { repairCompletionText } from "@/utils/repairCompletionTranslations";
 import { maintenanceResult } from "./maintenanceNavigation";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
@@ -57,6 +59,9 @@ export default async function RepairCompletion({
     return null;
   }
 
+  const language = await getMyLanguage();
+  const t = (text: string) => repairCompletionText(language, text);
+
   const [requestResult, repairResult] = await Promise.all([
     supabase.from("maintenance_requests")
       .select("mrf_number, status, downtime_applicable, downtime_started_at, downtime_ended_at")
@@ -67,9 +72,7 @@ export default async function RepairCompletion({
   ]);
 
   if (requestResult.error || repairResult.error) {
-    return <p role="alert" className="mt-4 text-red-700">
-      Repair completion details could not be loaded. Please refresh.
-    </p>;
+    return <p role="alert" className="mt-4 text-red-700">{t("Repair completion details could not be loaded. Please refresh.")}</p>;
   }
 
   const request = requestResult.data;
@@ -79,15 +82,10 @@ export default async function RepairCompletion({
     .is("resolved_at", null).limit(1);
 
   if (temporaryResult.error) {
-    return <p role="alert" className="mt-4 text-red-700">
-      Temporary repair follow-up could not be checked. Please refresh.
-    </p>;
+    return <p role="alert" className="mt-4 text-red-700">{t("Temporary repair follow-up could not be checked. Please refresh.")}</p>;
   }
   if (temporaryResult.data?.length) {
-    return <p className="mt-5 rounded-lg border border-amber-300 bg-amber-50 p-4 text-amber-900">
-      Overall repair completion is blocked while temporary repair follow-up is pending.
-      Complete and review the linked permanent-repair task, then resolve the follow-up.
-    </p>;
+    return <p className="mt-5 rounded-lg border border-amber-300 bg-amber-50 p-4 text-amber-900">{t("Overall repair completion is blocked while temporary repair follow-up is pending. Complete and review the linked permanent-repair task, then resolve the follow-up.")}</p>;
   }
 
   const formatTime = (value: string) => new Date(value).toLocaleString(
@@ -97,25 +95,22 @@ export default async function RepairCompletion({
   if (repair?.repair_reviewed_at) {
     return (
       <section className="mt-5 rounded-lg border border-green-200 bg-green-50 p-5">
-        <h3 className="font-semibold">Overall repair completion recorded</h3>
+        <h3 className="font-semibold">{t("Overall repair completion recorded")}</h3>
         <p className="mt-2 whitespace-pre-wrap">{repair.repair_summary}</p>
         <p className="mt-2 text-sm">
-          Confirmed: {formatTime(repair.repair_reviewed_at)} (Malaysia time)
+          {t("Confirmed:")} {formatTime(repair.repair_reviewed_at)} ({t("Malaysia time")})
         </p>
         {request.downtime_ended_at && (
           <p className="mt-1 text-sm">
-            Machine restored: {formatTime(request.downtime_ended_at)} (Malaysia time)
+            {t("Machine restored:")} {formatTime(request.downtime_ended_at)} ({t("Malaysia time")})
           </p>
         )}
         {repair.actual_downtime_minutes !== null && (
           <p className="mt-1 text-sm">
-            Machine downtime: {repair.actual_downtime_minutes} minutes
-            (rounded up).
+            {t("Machine downtime:")} {repair.actual_downtime_minutes} {t("minutes (rounded up).")}
           </p>
         )}
-        <p className="mt-2 text-sm">
-          Final approvals and handover are separate from repair completion.
-        </p>
+        <p className="mt-2 text-sm">{t("Final approvals and handover are separate from repair completion.")}</p>
       </section>
     );
   }
@@ -125,52 +120,44 @@ export default async function RepairCompletion({
   return (
     <details className="mt-5 rounded-lg border border-slate-300 bg-white p-5">
       <summary className="cursor-pointer font-semibold text-blue-700">
-        Overall Repair Completion — MRF {request.mrf_number}
+        {t("Overall Repair Completion")} — MRF {request.mrf_number}
       </summary>
-      <p className="mt-3 text-sm text-slate-600">
-        Complete and review all tasks and finish all personal work first.
-        This changes the MRF to Repair Completed; handover remains pending.
-      </p>
+      <p className="mt-3 text-sm text-slate-600">{t("Complete and review all tasks and finish all personal work first. This changes the MRF to Repair Completed; handover remains pending.")}</p>
       <form action={completeRepair} className="mt-4 space-y-4">
         <input type="hidden" name="request_id" value={requestId} />
         <label className="block">
-          <span className="font-medium">Repair summary and test results</span>
+          <span className="font-medium">{t("Repair summary and test results")}</span>
           <textarea name="repair_summary" required maxLength={10000} rows={4}
             className="mt-2 block w-full rounded-lg border border-slate-300 p-3" />
         </label>
         {request.downtime_applicable && (
           <div>
             <p className="text-sm text-slate-600">
-              Downtime started: {request.downtime_started_at
-                ? formatTime(request.downtime_started_at) + " (Malaysia time)"
-                : "Not recorded — this must be corrected before completion."}
+              {t("Downtime started:")} {request.downtime_started_at
+                ? formatTime(request.downtime_started_at) + " (" + t("Malaysia time") + ")"
+                : t("Not recorded — this must be corrected before completion.")}
             </p>
             <label className="mt-3 block">
-              <span className="font-medium">Actual machine restoration time — Malaysia time</span>
+              <span className="font-medium">{t("Actual machine restoration time — Malaysia time")}</span>
               {request.downtime_ended_at ? (
                 <p className="mt-2 text-sm text-green-800">
-                  Restart already recorded: {formatTime(request.downtime_ended_at)}
-                  {" (Malaysia time). This time will be preserved."}
+                  {t("Restart already recorded:")} {formatTime(request.downtime_ended_at)}
+                  {" ("}{t("Malaysia time")}{"). "}{t("This time will be preserved.")}
                 </p>
               ) : (
                 <input type="datetime-local" name="restored_at" required
                   className="mt-2 block rounded-lg border border-slate-300 p-3" />
               )}
             </label>
-            <p className="mt-2 text-sm text-slate-500">
-              Enter when the machine actually returned to operation.
-              This is separate from staff working time.
-            </p>
+            <p className="mt-2 text-sm text-slate-500">{t("Enter when the machine actually returned to operation. This is separate from staff working time.")}</p>
           </div>
         )}
         <label className="flex items-start gap-3">
           <input type="checkbox" name="confirmed" value="yes" required
             className="mt-1 h-5 w-5" />
-          <span>I have reviewed the work, verified repair completion and recorded the test results.</span>
+          <span>{t("I have reviewed the work, verified repair completion and recorded the test results.")}</span>
         </label>
-        <button className="rounded-lg bg-green-700 px-5 py-3 font-semibold text-white">
-          Confirm Repair Completed
-        </button>
+        <button className="rounded-lg bg-green-700 px-5 py-3 font-semibold text-white">{t("Confirm Repair Completed")}</button>
       </form>
     </details>
   );
