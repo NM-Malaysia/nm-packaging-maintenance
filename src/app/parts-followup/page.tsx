@@ -1,3 +1,4 @@
+import DashboardNavigation from "../DashboardNavigation";
 import { getMyLanguage } from "@/utils/language";
 import { partsPageText } from "@/utils/partsPageTranslations";
 import Link from "next/link";
@@ -79,7 +80,7 @@ async function Content({
   if (!user) redirect("/login");
 
   const { data: employee } = await supabase.from("employees")
-    .select("role, is_active, must_change_password")
+    .select("full_name, role, is_active, must_change_password")
     .eq("id", user.id).maybeSingle();
 
   if (!employee?.is_active) redirect("/login?error=access_denied");
@@ -140,7 +141,9 @@ async function Content({
     : t("Not recorded");
 
   return (
-    <main className="min-h-screen bg-slate-100 px-4 py-8 text-slate-900 sm:px-6">
+    <main className="min-h-screen bg-slate-100 text-slate-900">
+      <DashboardNavigation name={employee.full_name} role={employee.role} />
+      <div className="px-4 py-8 sm:px-6">
       <div className="mx-auto max-w-6xl">
         <Link href="/" className="font-medium text-blue-700">{t("← Dashboard")}</Link>
         <h1 className="mt-4 text-2xl font-bold">{t("Parts Follow-up & MIV Records")}</h1>
@@ -256,6 +259,7 @@ async function Content({
             </nav>
           </>
         )}
+      </div>
       </div>
     </main>
   );
