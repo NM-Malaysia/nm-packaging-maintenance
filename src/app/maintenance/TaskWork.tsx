@@ -1,3 +1,5 @@
+import { getMyLanguage } from "@/utils/language";
+import { taskWorkText } from "@/utils/taskWorkTranslations";
 import { maintenanceResult } from "./maintenanceNavigation";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
@@ -51,6 +53,9 @@ export default async function TaskWork({
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
 
+  const language = await getMyLanguage();
+  const t = (text: string) => taskWorkText(language, text);
+
   const membership = await supabase
     .from("maintenance_task_members")
     .select("id")
@@ -59,9 +64,7 @@ export default async function TaskWork({
     .maybeSingle();
 
   if (membership.error) {
-    return <p className="mt-3 text-red-700">
-      Task assignment could not be checked. Please refresh.
-    </p>;
+    return <p className="mt-3 text-red-700">{t("Task assignment could not be checked. Please refresh.")}</p>;
   }
   if (!membership.data) return null;
 
@@ -73,9 +76,7 @@ export default async function TaskWork({
     .maybeSingle();
 
   if (error) {
-    return <p className="mt-3 text-red-700">
-      Your task record could not be loaded. Please refresh.
-    </p>;
+    return <p className="mt-3 text-red-700">{t("Your task record could not be loaded. Please refresh.")}</p>;
   }
 
   const canWork = ["in_progress", "waiting_spare_parts",
@@ -89,15 +90,13 @@ export default async function TaskWork({
           <form action={updateTaskWork}>
             <input type="hidden" name="task_id" value={taskId} />
             <button name="task_action" value="start"
-              className="rounded-lg bg-green-700 px-4 py-2 font-semibold text-white">
-              Start Task
-            </button>
+              className="rounded-lg bg-green-700 px-4 py-2 font-semibold text-white">{t("Start Task")}</button>
           </form>
         ) : (
           <p className="text-sm text-slate-600">
             {taskStatus === "completed"
-              ? "This task is completed."
-              : "Task not started. Supervisor must set the MRF to In Progress before you start."}
+              ? t("This task is completed.")
+              : t("Task not started. Supervisor must set the MRF to In Progress before you start.")}
           </p>
         )}
       </div>
@@ -116,8 +115,8 @@ export default async function TaskWork({
     total + Math.max(0,
       (session.ended_at ? new Date(session.ended_at).getTime() : now)
       - new Date(session.started_at).getTime()), 0) / 1000);
-  const duration = `${Math.floor(seconds / 3600)}h ${
-    Math.floor(seconds % 3600 / 60)}m ${seconds % 60}s`;
+  const duration = `${Math.floor(seconds / 3600)}${t("h")} ${
+    Math.floor(seconds % 3600 / 60)}${t("m")} ${seconds % 60}${t("s")}`;
   const editable = canWork && !record.completed_at;
   const formatTime = (value: string) => new Date(value).toLocaleString(
     "en-MY", { timeZone: "Asia/Kuala_Lumpur" }
@@ -125,40 +124,36 @@ export default async function TaskWork({
 
   return (
     <div className="mt-4 border-t pt-4">
-      <h5 className="font-semibold">My work on this task</h5>
-      <p className="mt-2 text-sm">Started: {formatTime(record.started_at)} (Malaysia time)</p>
+      <h5 className="font-semibold">{t("My work on this task")}</h5>
+      <p className="mt-2 text-sm">{t("Started:")} {formatTime(record.started_at)} ({t("Malaysia time")})</p>
 
       {sessionError ? (
-        <p className="mt-2 text-red-700">Sessions could not be loaded.</p>
+        <p className="mt-2 text-red-700">{t("Sessions could not be loaded.")}</p>
       ) : (
         <div className="mt-3 rounded-lg border bg-white p-3">
           <p className="font-medium">
-            {record.completed_at ? "My part finished" : running ? "Working" : "Paused"}
+            {record.completed_at ? t("My part finished") : running ? t("Working") : t("Paused")}
             {" · "}{duration}
           </p>
-          <p className="mt-1 text-sm text-slate-500">
-            Excludes pauses. Refresh to update working time.
-          </p>
+          <p className="mt-1 text-sm text-slate-500">{t("Excludes pauses. Refresh to update working time.")}</p>
           {editable && (running || requestStatus === "in_progress") && (
             <form action={updateTaskWork} className="mt-3">
               <input type="hidden" name="task_id" value={taskId} />
               <button name="task_action" value={running ? "pause" : "resume"}
                 className="rounded-lg bg-amber-700 px-4 py-2 font-semibold text-white">
-                {running ? "Pause Task" : "Resume Task"}
+                {running ? t("Pause Task") : t("Resume Task")}
               </button>
-              <p className="mt-2 text-sm text-slate-500">
-                Save edited notes before pausing or resuming.
-              </p>
+              <p className="mt-2 text-sm text-slate-500">{t("Save edited notes before pausing or resuming.")}</p>
             </form>
           )}
           <details className="mt-3 text-sm">
-            <summary className="cursor-pointer">Task work sessions</summary>
+            <summary className="cursor-pointer">{t("Task work sessions")}</summary>
             <ul className="mt-2 space-y-2">
               {(sessions ?? []).map((session) => (
                 <li key={session.id}>
                   {formatTime(session.started_at)} → {
-                    session.ended_at ? formatTime(session.ended_at) : "Working"
-                  } (Malaysia time)
+                    session.ended_at ? formatTime(session.ended_at) : t("Working")
+                  } ({t("Malaysia time")})
                 </li>
               ))}
             </ul>
@@ -168,8 +163,8 @@ export default async function TaskWork({
 
       {record.completed_at && (
         <p className="mt-3 font-medium text-green-800">
-          My part finished: {formatTime(record.completed_at)} (Malaysia time).
-          Awaiting supervisor review of the task.
+          {t("My part finished:")} {formatTime(record.completed_at)} ({t("Malaysia time")}).
+          {t("Awaiting supervisor review of the task.")}
         </p>
       )}
 
@@ -177,29 +172,22 @@ export default async function TaskWork({
         <form action={updateTaskWork} className="mt-4">
           <input type="hidden" name="task_id" value={taskId} />
           <label className="block">
-            <span className="text-sm font-medium">My task work details</span>
+            <span className="text-sm font-medium">{t("My task work details")}</span>
             <textarea name="work_details" rows={3} maxLength={10000}
               defaultValue={record.work_details}
               className="mt-2 block w-full rounded-lg border border-slate-300 bg-white p-3" />
           </label>
-          <p className="mt-2 text-sm text-slate-600">
-            Finish My Part records your completion and locks your notes.
-            The supervisor reviews the overall task separately.
-          </p>
+          <p className="mt-2 text-sm text-slate-600">{t("Finish My Part records your completion and locks your notes. The supervisor reviews the overall task separately.")}</p>
           <div className="mt-3 flex flex-wrap gap-3">
             <button name="task_action" value="save"
-              className="rounded-lg bg-blue-700 px-4 py-2 font-semibold text-white">
-              Save Task Notes
-            </button>
+              className="rounded-lg bg-blue-700 px-4 py-2 font-semibold text-white">{t("Save Task Notes")}</button>
             <button name="task_action" value="finish"
-              className="rounded-lg bg-green-700 px-4 py-2 font-semibold text-white">
-              Finish My Part
-            </button>
+              className="rounded-lg bg-green-700 px-4 py-2 font-semibold text-white">{t("Finish My Part")}</button>
           </div>
         </form>
       ) : (
         <p className="mt-3 whitespace-pre-wrap">
-          {record.work_details || "No task notes recorded."}
+          {record.work_details || t("No task notes recorded.")}
         </p>
       )}
     </div>
