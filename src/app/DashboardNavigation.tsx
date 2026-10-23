@@ -1,3 +1,5 @@
+import LanguageSelector from "./LanguageSelector";
+import { getMyLanguage, navigationText } from "@/utils/language";
 import { NotificationBell } from "./MyActions";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -11,18 +13,21 @@ async function signOut() {
   redirect("/login");
 }
 
-export default function DashboardNavigation({
+export default async function DashboardNavigation({
   name,
   role,
 }: {
   name: string;
   role: string;
 }) {
+  const language = await getMyLanguage();
+  const text = navigationText(language);
+
   const canSubmit = ["requestor", "department_hod"].includes(role);
   const canApprove = ["department_hod", "admin"].includes(role);
 
   return (
-    <nav aria-label="Main navigation"
+    <nav aria-label={text.navigation}
       className="border-b bg-white px-6 py-4 text-slate-900">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4">
         <div>
@@ -32,30 +37,31 @@ export default function DashboardNavigation({
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-5 text-sm font-medium">
-          <Link href="/" className="text-blue-700 hover:underline">Dashboard</Link>
+          <Link href="/" className="text-blue-700 hover:underline">{text.dashboard}</Link>
           <Link href="/#latest-requests" className="text-blue-700 hover:underline">
-            Requests
+            {text.requests}
           </Link>
           {canSubmit && (
             <Link href="/requests/new" className="text-blue-700 hover:underline">
-              New Request
+              {text.newRequest}
             </Link>
           )}
           {canApprove && (
             <Link href="/approvals" className="text-blue-700 hover:underline">
-              HOD Approvals
+              {text.approvals}
             </Link>
           )}
           {role === "admin" && (
             <Link href="/admin/employees" className="text-blue-700 hover:underline">
-              Employees
+              {text.employees}
             </Link>
           )}
+          <LanguageSelector key={language} language={language} />
           <NotificationBell />
           <form action={signOut}>
             <button type="submit"
               className="rounded-lg border border-slate-300 px-4 py-2 hover:bg-slate-100">
-              Sign out
+              {text.signOut}
             </button>
           </form>
         </div>

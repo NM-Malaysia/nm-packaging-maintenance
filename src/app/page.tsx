@@ -1,3 +1,5 @@
+import { getMyLanguage } from "@/utils/language";
+import { dashboardText } from "@/utils/dashboardTranslations";
 import MyActions from "./MyActions";
 
 import Link from "next/link";
@@ -117,6 +119,9 @@ const [totalResult, submittedResult, recentResult] = await Promise.all([
     .limit(10),
 ]);
 
+const language = await getMyLanguage();
+const t = (text: string) => dashboardText(language, text);
+
 const requestLoadError =
   totalResult.error || submittedResult.error || recentResult.error;
 
@@ -140,7 +145,7 @@ const requestLoadError =
             </h1>
 
             <p className="text-sm text-slate-300">
-              Maintenance Management System
+              {t("Maintenance Management System")}
             </p>
           </div>
         </div>
@@ -149,11 +154,11 @@ const requestLoadError =
       <div className="mx-auto max-w-6xl px-6 py-10">
         <section className="mb-8">
           <h2 className="text-3xl font-bold text-slate-900">
-            Maintenance Dashboard
+            {t("Maintenance Dashboard")}
           </h2>
 
           <p className="mt-2 text-slate-600">
-            Welcome to the NM PACKAGING maintenance portal.
+            {t("Welcome to the NM PACKAGING maintenance portal.")}
           </p>
         </section>
 
@@ -166,33 +171,33 @@ const requestLoadError =
             {canReviewHod && (
               <Link href="/approvals"
                 className="inline-flex min-h-12 items-center justify-center gap-3 rounded-xl bg-blue-700 px-5 py-3 text-center font-semibold text-white transition hover:bg-blue-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700">
-                HOD Approvals <span aria-hidden="true">→</span>
+                {t("HOD Approvals")} <span aria-hidden="true">→</span>
               </Link>
             )}
             {canOpenMaintenance && (
               <Link href="/maintenance"
                 className="inline-flex min-h-12 items-center justify-center gap-3 rounded-xl bg-blue-700 px-5 py-3 text-center font-semibold text-white transition hover:bg-blue-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700">
-                Maintenance Team <span aria-hidden="true">→</span>
+                {t("Maintenance Team")} <span aria-hidden="true">→</span>
               </Link>
             )}
             {canReviewHod && (
               <Link href="/repair-approvals"
                 className="inline-flex min-h-12 items-center justify-center gap-3 rounded-xl bg-blue-700 px-5 py-3 text-center font-semibold text-white transition hover:bg-blue-800">
-                Repair Approvals <span aria-hidden="true">→</span>
+                {t("Repair Approvals")} <span aria-hidden="true">→</span>
               </Link>
             )}
             <Link href="/handovers"
               className="inline-flex min-h-12 items-center justify-center gap-3 rounded-xl bg-blue-700 px-5 py-3 text-center font-semibold text-white transition hover:bg-blue-800">
-              Handover <span aria-hidden="true">→</span>
+              {t("Handover")} <span aria-hidden="true">→</span>
             </Link>
           </nav>
         )}
 
         <section className="mb-8 grid gap-4 sm:grid-cols-3">
           {[
-            { label: "Accessible MRFs", value: totalResult.error ? "Unavailable" : String(totalResult.count ?? 0) },
-            { label: "Submitted MRFs", value: submittedResult.error ? "Unavailable" : String(submittedResult.count ?? 0) },
-            { label: "Overdue PM Tasks", value: "Not connected" },
+            { label: t("Accessible MRFs"), value: totalResult.error ? t("Unavailable") : String(totalResult.count ?? 0) },
+            { label: t("Submitted MRFs"), value: submittedResult.error ? t("Unavailable") : String(submittedResult.count ?? 0) },
+            { label: t("Overdue PM Tasks"), value: t("Not connected") },
           ].map((item) => (
             <div
               key={item.label}
@@ -240,7 +245,7 @@ const requestLoadError =
               </div>
 
               <h3 className="text-lg font-semibold text-slate-900">
-                {feature.title}
+                {t(feature.title)}
               </h3>
 
               <p className="mt-2 text-sm text-slate-600">
@@ -298,7 +303,7 @@ const requestLoadError =
                 </Link>
               ) : (
                 <span className="mt-5 inline-block text-sm text-slate-500">
-                  Coming soon
+                  {t("Coming soon")}
                 </span>
               )
               )}
@@ -310,7 +315,7 @@ const requestLoadError =
         <section className="mt-8 overflow-hidden rounded-xl bg-white shadow-sm">
           <div className="border-b border-slate-100 p-6">
             <h2 id="latest-requests" className="scroll-mt-6 text-xl font-bold text-slate-900">
-              Latest Maintenance Requests
+              {t("Latest Maintenance Requests")}
             </h2>
             <p className="mt-2 text-sm text-slate-500">
               Latest 10 requests visible under your account permissions.
