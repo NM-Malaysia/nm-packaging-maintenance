@@ -1,3 +1,5 @@
+import { getMyLanguage } from "@/utils/language";
+import { maintenanceText } from "@/utils/maintenanceTranslations";
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import { maintenanceBack } from "./maintenanceNavigation";
@@ -114,6 +116,10 @@ async function MaintenanceList({ searchParams }: { searchParams: Promise<Query> 
   }
 
 
+  const language = await getMyLanguage();
+  const t = (text: string, values: Record<string, string | number> = {}) =>
+    maintenanceText(language, text, values);
+
   const raw = await searchParams;
   const value = (key: string) => typeof raw[key] === "string" ? raw[key] as string : "";
   const tab = tabs.some(([key]) => key === value("tab")) ? value("tab") : "active";
@@ -224,22 +230,22 @@ async function MaintenanceList({ searchParams }: { searchParams: Promise<Query> 
     staff = staffResult.data ?? [];
     staffError = Boolean(staffResult.error);
   }
-  const people = new Map<string, string>([[user.id, employee.full_name + " (you)"]]);
+  const people = new Map<string, string>([[user.id, employee.full_name + " (" + t("you") + ")"]]);
   for (const person of staff) {
     people.set(person.id, person.full_name + " (" + person.employee_id + ")");
   }
-  if (member && !people.has(member)) people.set(member, "Selected team member");
+  if (member && !people.has(member)) people.set(member, t("Selected team member"));
 
   const loadedAt = Date.now();
   function elapsed(value: string | null) {
-    if (!value) return "Unavailable";
+    if (!value) return t("Unavailable");
     const timestamp = new Date(value).getTime();
-    if (!Number.isFinite(timestamp)) return "Unavailable";
+    if (!Number.isFinite(timestamp)) return t("Unavailable");
     const minutes = Math.floor(Math.max(0, loadedAt - timestamp) / 60000);
-    if (minutes < 60) return `${minutes}m`;
+    if (minutes < 60) return `${minutes} ${t("min")}`;
     const hours = Math.floor(minutes / 60);
-    return hours < 24 ? `${hours}h ${minutes % 60}m`
-      : `${Math.floor(hours / 24)}d ${hours % 24}h`;
+    return hours < 24 ? `${hours} ${t("hr")} ${minutes % 60} ${t("min")}`
+      : `${Math.floor(hours / 24)} ${t("day")} ${hours % 24} ${t("hr")}`;
   }
 
   const field = "mt-1 block min-w-0 w-full max-w-full box-border rounded-lg border border-slate-300 bg-white p-2 text-base text-slate-900 placeholder:text-slate-500 sm:text-sm";
@@ -247,29 +253,29 @@ async function MaintenanceList({ searchParams }: { searchParams: Promise<Query> 
   return (
     <main className="min-h-screen bg-slate-100 px-4 py-8 text-slate-900 sm:px-6">
       <div className="mx-auto max-w-7xl">
-        <Link href="/" className="text-blue-700 hover:underline">← Dashboard</Link>
-        <h1 className="mt-5 text-3xl font-bold text-slate-900">Maintenance Team</h1>
+        <Link href="/" className="text-blue-700 hover:underline">{t("\u2190 Dashboard")}</Link>
+        <h1 className="mt-5 text-3xl font-bold text-slate-900">{t("Maintenance Team")}</h1>
         <p className="mt-2 text-slate-600">
-          {employee.full_name} · {employee.role.replaceAll("_", " ")}
+          {employee.full_name} · {t(employee.role.replaceAll("_", " "))}
         </p>
         {value("result") === "priority_saved" && (
           <p role="status" className="mt-4 rounded-lg bg-green-50 p-3 text-green-800">
-            Priority saved.
+            {t("Priority saved.")}
           </p>
         )}
         {["priority_failed", "priority_invalid"].includes(value("result")) && (
           <p role="alert" className="mt-4 rounded-lg bg-red-50 p-3 text-red-800">
-            Priority could not be saved. Refresh and try again.
+            {t("Priority could not be saved. Refresh and try again.")}
           </p>
         )}
-        <nav aria-label="Job categories" className="mt-6 flex flex-wrap gap-2">
+        <nav aria-label={t("Job categories")} className="mt-6 flex flex-wrap gap-2">
           {tabs.map(([key, title]) => (
             <Link key={key}
               href={listHref({ tab: key, status: "", page: "1" })}
               aria-current={tab === key ? "page" : undefined}
               className={"rounded-lg px-4 py-2 text-sm font-semibold " +
                 (tab === key ? "bg-blue-700 text-white" : "border bg-white text-slate-700")}>
-              {title}
+              {t(title)}
             </Link>
           ))}
         </nav>
@@ -277,104 +283,102 @@ async function MaintenanceList({ searchParams }: { searchParams: Promise<Query> 
         <form action="/maintenance" method="get"
           className="mt-5 grid gap-4 rounded-xl border bg-white p-5 sm:grid-cols-2 lg:grid-cols-4">
           <input type="hidden" name="tab" value={tab} />
-          <label className="min-w-0 text-sm font-medium text-slate-900">Priority
+          <label className="min-w-0 text-sm font-medium text-slate-900">{t("Priority")}
             <select name="priority" defaultValue={priority} className={field}>
-              <option value="">All priorities</option>
+              <option value="">{t("All priorities")}</option>
               {Object.entries(priorityLabels).map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
+                <option key={value} value={value}>{t(label)}</option>
               ))}
             </select>
           </label>
-          <label className="min-w-0 text-sm font-medium text-slate-900">Sort by
+          <label className="min-w-0 text-sm font-medium text-slate-900">{t("Sort by")}
             <select name="sort" defaultValue={sort} className={field}>
               {Object.entries(sortLabels).map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
+                <option key={value} value={value}>{t(label)}</option>
               ))}
             </select>
           </label>
-          <label className="min-w-0 text-sm font-medium text-slate-900">Search MRF / machine / description
+          <label className="min-w-0 text-sm font-medium text-slate-900">{t("Search MRF / machine / description")}
             <input name="q" defaultValue={q} maxLength={100}
-              placeholder="11234 or Fuji9" className={field} />
+              placeholder={t("11234 or Fuji9")} className={field} />
           </label>
-          <label className="min-w-0 text-sm font-medium text-slate-900">Status
+          <label className="min-w-0 text-sm font-medium text-slate-900">{t("Status")}
             <select name="status" defaultValue={statuses.includes(status) ? status : ""} className={field}>
-              <option value="">All statuses in this tab</option>
-              {statuses.map(item => <option key={item} value={item}>{labels[item]}</option>)}
+              <option value="">{t("All statuses in this tab")}</option>
+              {statuses.map(item => <option key={item} value={item}>{t(labels[item])}</option>)}
             </select>
           </label>
-          <label className="min-w-0 text-sm font-medium text-slate-900">Department
+          <label className="min-w-0 text-sm font-medium text-slate-900">{t("Department")}
             <input name="department" defaultValue={department}
-              placeholder="Department name" maxLength={100} className={field} />
+              placeholder={t("Department name")} maxLength={100} className={field} />
           </label>
-          <label className="min-w-0 text-sm font-medium text-slate-900">Assigned person
+          <label className="min-w-0 text-sm font-medium text-slate-900">{t("Assigned person")}
             {tab === "my" ? (
               <>
                 <input type="hidden" name="member" value={user.id} />
-                <p className={field}>{employee.full_name} (you)</p>
+                <p className={field}>{employee.full_name} ({t("you")})</p>
               </>
             ) : (
               <select name="member" defaultValue={member} className={field}>
-                <option value="">All team members</option>
+                <option value="">{t("All team members")}</option>
                 {[...people].map(([id, name]) => <option key={id} value={id}>{name}</option>)}
               </select>
             )}
           </label>
-          <label className="min-w-0 text-sm font-medium text-slate-900">Submitted from — Malaysia date
+          <label className="min-w-0 text-sm font-medium text-slate-900">{t("Submitted from \u2014 Malaysia date")}
             <input type="date"
               style={{ minWidth: 0, width: "100%", maxWidth: "100%",
                 boxSizing: "border-box", WebkitAppearance: "none" }} name="from" defaultValue={validDate(from) ? from : ""} className={field} />
           </label>
-          <label className="min-w-0 text-sm font-medium text-slate-900">Submitted to — Malaysia date
+          <label className="min-w-0 text-sm font-medium text-slate-900">{t("Submitted to \u2014 Malaysia date")}
             <input type="date"
               style={{ minWidth: 0, width: "100%", maxWidth: "100%",
                 boxSizing: "border-box", WebkitAppearance: "none" }} name="to" defaultValue={validDate(to) ? to : ""} className={field} />
           </label>
           <div className="flex items-end gap-4">
             <button className="rounded-lg bg-blue-700 px-5 py-2 font-semibold text-white">
-              Apply filters
+              {t("Apply filters")}
             </button>
-            <Link href="/maintenance" className="py-2 text-sm text-blue-700">Reset</Link>
+            <Link href="/maintenance" className="py-2 text-sm text-blue-700">{t("Reset")}</Link>
           </div>
         </form>
 
         <p className="mt-3 text-sm text-slate-600">
-          No update measures time since recorded activity, including priority changes.
-          It does not mean nobody is working. In Progress includes paused time.
-          Refresh to update durations.
-          {sort === "idle" && " Closed MRFs are excluded."}
-          {sort === "progress" && " Only In Progress MRFs are shown within the selected tab and filters."}
+          {t("No update measures time since recorded activity, including priority changes. It does not mean nobody is working. In Progress includes paused time. Refresh to update durations.")}
+          {sort === "idle" && (" " + t("Closed MRFs are excluded."))}
+          {sort === "progress" && (" " + t("Only In Progress MRFs are shown within the selected tab and filters."))}
         </p>
         {tab === "review" && (
           <p className="mt-3 text-sm text-slate-600">
-            Repairs awaiting final approval or handover. Individual task reviews are inside each MRF.
+            {t("Repairs awaiting final approval or handover. Individual task reviews are inside each MRF.")}
           </p>
         )}
         {staffError && <p role="alert" className="mt-3 text-red-700">
-          The staff filter list could not be loaded. Refresh to try again.
+          {t("The staff filter list could not be loaded. Refresh to try again.")}
         </p>}
 
         {temporaryResult.error && (
           <p role="alert" className="mt-3 text-red-700">
-            Temporary repair indicators could not be loaded. Refresh to try again.
+            {t("Temporary repair indicators could not be loaded. Refresh to try again.")}
           </p>
         )}
         {result.error ? (
           <p role="alert" className="mt-5 rounded-xl bg-white p-5 text-red-700">
-            Requests could not be loaded. Refresh and try again.
+            {t("Requests could not be loaded. Refresh and try again.")}
           </p>
         ) : (
           <>
             <div className="mt-5 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-600">
-              <p>{total === 0 ? "No matching MRFs" :
-                `Showing ${(current - 1) * size + 1}–${Math.min(current * size, total)} of ${total} MRFs`}</p>
-              <p>{sortLabels[sort]} · 20 per page</p>
+              <p>{total === 0 ? t("No matching MRFs") :
+                t("Showing {first}–{last} of {total} MRFs", { first: (current - 1) * size + 1, last: Math.min(current * size, total), total })}</p>
+              <p>{t(sortLabels[sort])} · {t("20 per page")}</p>
             </div>
             <div className="mt-3 overflow-x-auto rounded-xl border bg-white shadow-sm">
               <table className="w-full text-left text-sm">
                 <thead className="bg-slate-50 text-slate-600">
                   <tr>
                     {["MRF / Machine", "Department", "Status", "Priority", "Assigned team", "Submitted", "Activity / Time", ""].map(
-                      (title, index) => <th key={index} className="px-4 py-3 font-semibold">{title}</th>
+                      (title, index) => <th key={index} className="px-4 py-3 font-semibold">{t(title)}</th>
                     )}
                   </tr>
                 </thead>
@@ -394,10 +398,10 @@ async function MaintenanceList({ searchParams }: { searchParams: Promise<Query> 
                         <td className="px-4 py-4">{request.department}</td>
                         <td className="px-4 py-4">
                           <span className="inline-block rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-800">
-                            {labels[request.status] ?? request.status}
+                            {t(labels[request.status] ?? request.status)}
                             {pendingTemporary.has(request.id) && (
                               <span className="mt-1 block font-semibold text-amber-800">
-                                Temporary repair · Follow-up pending
+                                {t("Temporary repair \u00b7 Follow-up pending")}
                               </span>
                             )}
                           </span>
@@ -408,26 +412,26 @@ async function MaintenanceList({ searchParams }: { searchParams: Promise<Query> 
                               <input type="hidden" name="request_id" value={request.id} />
                               <input type="hidden" name="back" value={back} />
                               <select name="priority"
-                                aria-label={"Priority for MRF " + request.mrf_number}
+                                aria-label={t("Priority for MRF {number}", { number: request.mrf_number })}
                                 defaultValue={String(request.priority)}
                                 className={field}>
                                 {Object.entries(priorityLabels).map(([value, label]) => (
-                                  <option key={value} value={value}>{label}</option>
+                                  <option key={value} value={value}>{t(label)}</option>
                                 ))}
                               </select>
                               <button className="rounded-lg bg-blue-700 px-3 py-2 text-xs font-semibold text-white">
-                                Save priority
+                                {t("Save priority")}
                               </button>
                             </form>
                           ) : (
                             <span className="font-semibold">
-                              {priorityLabels[String(request.priority)] ?? "Normal"}
+                              {t(priorityLabels[String(request.priority)] ?? "Normal")}
                             </span>
                           )}
                         </td>
                         <td className="min-w-40 px-4 py-4 text-slate-600">
-                          {teamResult.error ? "Could not load team" :
-                            members.map(person => person.full_name).join(", ") || "Not assigned"}
+                          {teamResult.error ? t("Could not load team") :
+                            members.map(person => person.full_name).join(", ") || t("Not assigned")}
                         </td>
                         <td className="whitespace-nowrap px-4 py-4 text-slate-500">
                           {new Date(request.submitted_at).toLocaleDateString("en-MY", {
@@ -436,40 +440,40 @@ async function MaintenanceList({ searchParams }: { searchParams: Promise<Query> 
                         </td>
                         <td className="min-w-44 px-4 py-4 text-xs text-slate-600">
                           <p>
-                            {request.status === "closed" ? "Last activity: " : "No update: "}
+                            {request.status === "closed" ? t("Last activity: ") : t("No update: ")}
                             {request.status === "closed"
                               ? (request.mrf_last_activity
                                 ? new Date(request.mrf_last_activity).toLocaleString(
                                     "en-MY", { timeZone: "Asia/Kuala_Lumpur" })
-                                : "Unavailable")
+                                : t("Unavailable"))
                               : elapsed(request.mrf_last_activity)}
                           </p>
                           {request.status === "in_progress" && (
                             <p className="mt-2">
-                              In Progress: {elapsed(request.mrf_in_progress_since)}
+                              {t("In Progress: ")}{elapsed(request.mrf_in_progress_since)}
                             </p>
                           )}
                         </td>
                         <td className="px-4 py-4">
                           <Link href={href} className="inline-block rounded-lg bg-blue-700 px-4 py-2 font-semibold text-white">
-                            Open
+                            {t("Open")}
                           </Link>
                         </td>
                       </tr>
                     );
                   })}
                   {!requests.length && <tr><td colSpan={8} className="p-8 text-center text-slate-500">
-                    No MRFs match these filters.
+                    {t("No MRFs match these filters.")}
                   </td></tr>}
                 </tbody>
               </table>
             </div>
-            <nav aria-label="MRF pages" className="mt-5 flex items-center justify-between gap-4">
+            <nav aria-label={t("MRF pages")} className="mt-5 flex items-center justify-between gap-4">
               {current > 1 ? <Link href={listHref({ page: String(current - 1) })}
-                className="rounded-lg border bg-white px-4 py-2 text-sm text-blue-700">← Previous</Link> : <span />}
-              <span className="text-sm text-slate-600">Page {current} of {pages}</span>
+                className="rounded-lg border bg-white px-4 py-2 text-sm text-blue-700">{t("\u2190 Previous")}</Link> : <span />}
+              <span className="text-sm text-slate-600">{t("Page {page} of {pages}", { page: current, pages })}</span>
               {current < pages ? <Link href={listHref({ page: String(current + 1) })}
-                className="rounded-lg border bg-white px-4 py-2 text-sm text-blue-700">Next →</Link> : <span />}
+                className="rounded-lg border bg-white px-4 py-2 text-sm text-blue-700">{t("Next \u2192")}</Link> : <span />}
             </nav>
           </>
         )}
