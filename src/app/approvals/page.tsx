@@ -1,3 +1,4 @@
+import DashboardNavigation from "../DashboardNavigation";
 import { getMyLanguage } from "@/utils/language";
 import { hodApprovalText } from "@/utils/hodApprovalTranslations";
 import Link from "next/link";
@@ -97,7 +98,9 @@ async function ApprovalContent({ searchParams }: Props) {
   };
 
   return (
-    <main className="min-h-screen bg-slate-100 p-4 text-slate-900 sm:p-8">
+    <main className="min-h-screen bg-slate-100 text-slate-900">
+      <DashboardNavigation name={employee.full_name} role={employee.role} />
+      <div className="p-4 sm:p-8">
       <div className="mx-auto max-w-4xl">
         <Link href="/" className="text-blue-700 underline">{t("← Back to dashboard")}</Link>
 
@@ -192,6 +195,7 @@ async function ApprovalContent({ searchParams }: Props) {
             ))}
           </div>
         )}
+      </div>
       </div>
     </main>
   );
