@@ -1,3 +1,5 @@
+import { getMyLanguage } from "@/utils/language";
+import { hodApprovalText } from "@/utils/hodApprovalTranslations";
 import Link from "next/link";
 import { Suspense } from "react";
 import { connection } from "next/server";
@@ -74,6 +76,9 @@ async function ApprovalContent({ searchParams }: Props) {
   if (employee.must_change_password) redirect("/change-password");
   if (!["department_hod", "admin"].includes(employee.role)) redirect("/");
 
+  const language = await getMyLanguage();
+  const t = (text: string) => hodApprovalText(language, text);
+
   const { result } = await searchParams;
 
   // Existing RLS limits which requests this employee can see.
@@ -94,58 +99,49 @@ async function ApprovalContent({ searchParams }: Props) {
   return (
     <main className="min-h-screen bg-slate-100 p-4 text-slate-900 sm:p-8">
       <div className="mx-auto max-w-4xl">
-        <Link href="/" className="text-blue-700 underline">
-          ← Back to dashboard
-        </Link>
+        <Link href="/" className="text-blue-700 underline">{t("← Back to dashboard")}</Link>
 
         <p className="mt-6 text-sm font-semibold text-slate-600">
           NM PACKAGING (M) SDN. BHD.
         </p>
-        <h1 className="mt-2 text-3xl font-bold">HOD Request Approvals</h1>
+        <h1 className="mt-2 text-3xl font-bold">{t("HOD Request Approvals")}</h1>
         <p className="mt-2 text-slate-600">
-          Reviewer: {employee.full_name}
+          {t("Reviewer:")} {employee.full_name}
         </p>
-        <p className="mb-6 mt-2 text-sm text-slate-500">
-          Oldest 100 submitted requests visible under your account permissions.
-          Decisions are recorded with your identity and signing time.
-        </p>
+        <p className="mb-6 mt-2 text-sm text-slate-500">{t("Oldest 100 submitted requests visible under your account permissions. Decisions are recorded with your identity and signing time.")}</p>
 
         {result && messages[result] && (
           <p role="status" className="mb-6 rounded-lg border bg-white p-4">
-            {messages[result]}
+            {t(messages[result])}
           </p>
         )}
 
         {error ? (
-          <p role="alert" className="rounded-xl bg-white p-6 text-red-700">
-            Unable to load requests. Refresh or contact your administrator.
-          </p>
+          <p role="alert" className="rounded-xl bg-white p-6 text-red-700">{t("Unable to load requests. Refresh or contact your administrator.")}</p>
         ) : requests?.length === 0 ? (
-          <p className="rounded-xl bg-white p-6">
-            No submitted requests are awaiting your review.
-          </p>
+          <p className="rounded-xl bg-white p-6">{t("No submitted requests are awaiting your review.")}</p>
         ) : (
           <div className="space-y-6">
             {(requests ?? []).map((request) => (
               <section key={request.id} className="rounded-xl bg-white p-6 shadow-sm">
                 <h2 className="text-xl font-bold">MRF {request.mrf_number}</h2>
                 <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
-                  <div><dt className="font-semibold">Machine</dt><dd>{request.machine_name}</dd></div>
-                  <div><dt className="font-semibold">Department</dt><dd>{request.department}</dd></div>
-                  <div><dt className="font-semibold">Request type</dt><dd className="capitalize">{request.request_type}</dd></div>
+                  <div><dt className="font-semibold">{t("Machine")}</dt><dd>{request.machine_name}</dd></div>
+                  <div><dt className="font-semibold">{t("Department")}</dt><dd>{request.department}</dd></div>
+                  <div><dt className="font-semibold">{t("Request type")}</dt><dd className="capitalize">{t(request.request_type)}</dd></div>
                   <div>
-                    <dt className="font-semibold">Submitted — Malaysia time</dt>
+                    <dt className="font-semibold">{t("Submitted — Malaysia time")}</dt>
                     <dd>{new Date(request.submitted_at).toLocaleString("en-MY", {
                       timeZone: "Asia/Kuala_Lumpur",
                     })}</dd>
                   </div>
                   <div>
-                    <dt className="font-semibold">Downtime applies</dt>
-                    <dd>{request.downtime_applicable ? "Yes" : "No"}</dd>
+                    <dt className="font-semibold">{t("Downtime applies")}</dt>
+                    <dd>{request.downtime_applicable ? t("Yes") : t("No")}</dd>
                   </div>
                   {request.downtime_applicable && request.downtime_started_at && (
                     <div>
-                      <dt className="font-semibold">Downtime started — Malaysia time</dt>
+                      <dt className="font-semibold">{t("Downtime started — Malaysia time")}</dt>
                       <dd>{new Date(request.downtime_started_at).toLocaleString("en-MY", {
                         timeZone: "Asia/Kuala_Lumpur",
                       })}</dd>
@@ -153,7 +149,7 @@ async function ApprovalContent({ searchParams }: Props) {
                   )}
                 </dl>
 
-                <h3 className="mt-5 font-semibold">Work requested</h3>
+                <h3 className="mt-5 font-semibold">{t("Work requested")}</h3>
                 <p className="mt-2 whitespace-pre-wrap break-words text-slate-700">
                   {request.description}
                 </p>
@@ -161,9 +157,7 @@ async function ApprovalContent({ searchParams }: Props) {
                 <form action={reviewRequest} className="mt-6 space-y-4 border-t pt-5">
                   <input type="hidden" name="request_id" value={request.id} />
                   <div>
-                    <label htmlFor={`decision-${request.id}`} className="font-medium">
-                      Decision *
-                    </label>
+                    <label htmlFor={`decision-${request.id}`} className="font-medium">{t("Decision *")}</label>
                     <select
                       id={`decision-${request.id}`}
                       name="decision"
@@ -171,15 +165,13 @@ async function ApprovalContent({ searchParams }: Props) {
                       defaultValue=""
                       className="mt-2 w-full rounded-lg border p-3"
                     >
-                      <option value="" disabled>Select decision</option>
-                      <option value="approved">Approve request</option>
-                      <option value="rejected">Reject request</option>
+                      <option value="" disabled>{t("Select decision")}</option>
+                      <option value="approved">{t("Approve request")}</option>
+                      <option value="rejected">{t("Reject request")}</option>
                     </select>
                   </div>
                   <div>
-                    <label htmlFor={`comments-${request.id}`} className="font-medium">
-                      Comments — required for rejection
-                    </label>
+                    <label htmlFor={`comments-${request.id}`} className="font-medium">{t("Comments — required for rejection")}</label>
                     <textarea
                       id={`comments-${request.id}`}
                       name="comments"
@@ -188,14 +180,12 @@ async function ApprovalContent({ searchParams }: Props) {
                       className="mt-2 w-full rounded-lg border p-3"
                     />
                   </div>
-                  <p className="text-sm text-slate-500">
-                    Clicking Confirm records your decision and changes the request status.
-                  </p>
+                  <p className="text-sm text-slate-500">{t("Clicking Confirm records your decision and changes the request status.")}</p>
                   <button
                     type="submit"
                     className="rounded-lg bg-blue-700 px-5 py-3 font-semibold text-white"
                   >
-                    Confirm decision for MRF {request.mrf_number}
+                    {t("Confirm decision for MRF")} {request.mrf_number}
                   </button>
                 </form>
               </section>
