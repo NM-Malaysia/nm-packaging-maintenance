@@ -94,6 +94,25 @@ Object.assign(translations, {
   }
 });
 
+// Standard workflow history messages
+Object.assign(translations, {
+  "Verified checklist and both handover signatures recorded.": {
+    "ms": "Senarai semak yang disahkan dan kedua-dua tandatangan serah terima telah direkodkan.",
+    "zh": "已记录验证完成的检查清单及双方交接签署。",
+    "ne": "प्रमाणित जाँचसूची र दुवै पक्षको हस्तान्तरण हस्ताक्षर रेकर्ड गरियो।"
+  },
+  "Manager and Requestor Department HOD approved the repair. Handover pending.": {
+    "ms": "Pengurus dan HOD jabatan pemohon telah meluluskan pembaikan. Menunggu serah terima.",
+    "zh": "经理及申请部门主管已批准维修，等待交接。",
+    "ne": "प्रबन्धक र अनुरोधकर्ता विभाग प्रमुखले मर्मत स्वीकृत गरे। हस्तान्तरण बाँकी छ।"
+  },
+  "Overall repair completion confirmed. See repair summary.": {
+    "ms": "Penyelesaian keseluruhan pembaikan disahkan. Lihat ringkasan pembaikan.",
+    "zh": "已确认整体维修完成，请参阅维修总结。",
+    "ne": "समग्र मर्मत पूरा भएको पुष्टि भयो। मर्मत सारांश हेर्नुहोस्।"
+  }
+});
+
 export function jobStatusText(language: Language, text: string): string {
   return language === "en" ? text
     : translations[text]?.[language] ?? maintenanceText(language, text);
