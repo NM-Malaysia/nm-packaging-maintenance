@@ -1,3 +1,4 @@
+import DashboardNavigation from "../DashboardNavigation";
 import { getMyLanguage } from "@/utils/language";
 import { handoverPageText } from "@/utils/handoverPageTranslations";
 import Link from "next/link";
@@ -59,7 +60,9 @@ async function Content({ searchParams }: { searchParams: Promise<Query> }) {
   };
 
   return (
-    <main className="min-h-screen bg-slate-100 px-6 py-8">
+    <main className="min-h-screen bg-slate-100 text-slate-900">
+      <DashboardNavigation name={employee.full_name} role={employee.role} />
+      <div className="px-4 py-8 sm:px-6">
       <div className="mx-auto max-w-5xl">
         <Link href="/" className="text-blue-700 hover:underline">{t("← Dashboard")}</Link>
         <h1 className="mt-5 text-3xl font-bold">{t("Maintenance Handover")}</h1>
@@ -103,6 +106,7 @@ async function Content({ searchParams }: { searchParams: Promise<Query> }) {
             {page < pages ? <Link href={href(page + 1)} className="text-blue-700">{t("Next →")}</Link> : <span />}
           </nav>
         )}
+      </div>
       </div>
     </main>
   );
