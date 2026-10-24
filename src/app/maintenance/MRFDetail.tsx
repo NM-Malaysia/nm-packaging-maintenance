@@ -1,3 +1,4 @@
+import { requestSummaryText } from "@/utils/requestSummaryTranslations";
 import DashboardNavigation from "../DashboardNavigation";
 import { getMyLanguage } from "@/utils/language";
 import { mrfDetailText } from "@/utils/mrfDetailTranslations";
@@ -118,14 +119,22 @@ async function MaintenanceContent({
   }
 
   const language = await getMyLanguage();
-  const t = (text: string) => mrfDetailText(language, text);
+  const t = (text: string) => {
+    const summary = requestSummaryText(language, text);
+    return summary !== text ? summary : mrfDetailText(language, text);
+  };
+  const categoryLabels: Record<string, string> = {
+    equipment: "Machine / Equipment",
+    facilities: "Building / Facilities",
+    other: "Other Maintenance Work",
+  };
 
   const canAssign = ["admin", "maintenance_supervisor"].includes(employee.role);
   const params = await searchParams;
 
   const { data: requests, error: requestError } = await supabase
     .from("maintenance_requests")
-    .select("id, mrf_number, machine_name, department, description, status")
+    .select("id, mrf_number, machine_name, work_category, work_location, department, description, status")
     .eq("id", params.request ?? "")
     .order("submitted_at", { ascending: true })
     .limit(1);
@@ -280,6 +289,29 @@ async function MaintenanceContent({
                     </span>
                   </div>
                   <p className="mt-2 text-slate-600">{request.department}</p>
+                  <dl className="mt-4 grid gap-4 rounded-lg bg-slate-50 p-4 text-sm sm:grid-cols-2">
+                    <div>
+                      <dt className="font-semibold">{t("Work category")}</dt>
+                      <dd className="mt-1">
+                        {t(categoryLabels[request.work_category ?? ""] ?? "Not specified")}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="font-semibold">
+                        {t(request.work_category === "equipment"
+                          ? "Machine / Equipment"
+                          : request.work_category === "facilities" || request.work_category === "other"
+                          ? "Work subject" : "Equipment / Work subject")}
+                      </dt>
+                      <dd className="mt-1 break-words">{request.machine_name}</dd>
+                    </div>
+                    <div className="sm:col-span-2">
+                      <dt className="font-semibold">{t("Work location")}</dt>
+                      <dd className="mt-1 whitespace-pre-wrap break-words">
+                        {request.work_location || t("Not recorded")}
+                      </dd>
+                    </div>
+                  </dl>
                   <p className="mt-4 whitespace-pre-wrap">{request.description}</p>
                   <div className="mt-4">
                     <h3 className="font-semibold">{t("Assigned team")}</h3>
