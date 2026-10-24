@@ -24,6 +24,13 @@ async function NewRequest() {
   const { data: department, error: departmentError } = allowed
     ? await supabase.from("departments").select("name").eq("id", employee.department_id).maybeSingle()
     : { data: null, error: null };
+  const equipmentResult = allowed
+    ? await supabase.from("machines")
+        .select("id, machine_code, machine_name, location")
+        .eq("is_active", true)
+        .order("machine_code")
+    : { data: [], error: null };
+
   return (
     <main className="min-h-screen bg-slate-100 text-slate-900">
       <DashboardNavigation name={employee.full_name} role={employee.role} />
@@ -35,7 +42,9 @@ async function NewRequest() {
         <p className="mb-6 mt-2 text-slate-600">{t("Maintenance / repair / modification request form")}</p>
         {!allowed ? <p role="alert" className="rounded-xl bg-white p-6">{t("Only Requestors and Department HODs can submit MRFs under the current company permissions.")}</p>
           : departmentError || !department ? <p role="alert" className="rounded-xl bg-white p-6">{t("Unable to load your department. Contact your administrator.")}</p>
-          : <RequestForm name={employee.full_name} department={department.name} language={language} />}
+          : <RequestForm name={employee.full_name} department={department.name} language={language}
+              machines={equipmentResult.data ?? []}
+              equipmentError={Boolean(equipmentResult.error)} />}
       </div>
       </div>
     </main>

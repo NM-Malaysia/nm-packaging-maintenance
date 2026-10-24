@@ -9,14 +9,31 @@ export async function submitRequest(
   form: FormData
 ): Promise<RequestState> {
   const mrf = String(form.get("mrf_number") ?? "").trim();
-  const machine = String(form.get("machine_name") ?? "").trim();
+  const category = String(form.get("work_category") ?? "");
+  const machineId = String(form.get("machine_id") ?? "");
+  let machine = String(form.get("machine_name") ?? "").trim();
+  const location = String(form.get("work_location") ?? "").trim();
+  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   const description = String(form.get("description") ?? "").trim();
   const type = String(form.get("request_type") ?? "");
   const downtime = form.get("downtime_applicable") === "on";
   const started = String(form.get("downtime_started_at") ?? "");
 
   if (!/^[0-9]{5}$/.test(mrf)) return { error: "Enter the five-digit paper MRF number, including leading zeros." };
-  if (!machine || machine.length > 200) return { error: "Enter a machine/equipment name of up to 200 characters." };
+  if (!["equipment", "facilities", "other"].includes(category)) {
+    return { error: "Select a work category." };
+  }
+  if (location.length > 200) return { error: "Enter a location of up to 200 characters." };
+  if (category === "equipment") {
+    if (!uuid.test(machineId)) return { error: "Select registered equipment." };
+  } else {
+    if (machineId || !machine || machine.length > 200 || !location) {
+      return { error: "Enter a work subject and location, each up to 200 characters." };
+    }
+    if (downtime || started) {
+      return { error: "Machine downtime applies only to equipment requests." };
+    }
+  }
   if (!description || description.length > 10000) return { error: "Enter maintenance details of up to 10,000 characters." };
   if (!["repair", "maintenance", "modification"].includes(type)) return { error: "Select a request type." };
 
@@ -44,13 +61,28 @@ export async function submitRequest(
       .select("name").eq("id", employee.department_id).maybeSingle();
     if (departmentError || !department) return { error: "Unable to confirm your department. Contact your administrator." };
 
-    // Use the employee session so existing RLS, prepare_request and audit_row apply.
-    // No service key; no changes to the existing database or its permissions.
+    if (category === "equipment") {
+      const { data: equipment, error: equipmentError } = await supabase
+        .from("machines")
+        .select("machine_name")
+        .eq("id", machineId)
+        .eq("is_active", true)
+        .maybeSingle();
+      if (equipmentError || !equipment) {
+        return { error: "Selected equipment is unavailable. Refresh and select active equipment." };
+      }
+      machine = equipment.machine_name;
+    }
+
+    // Submit using the employee session and existing request/audit triggers.
     const { error } = await supabase.from("maintenance_requests").insert({
       mrf_number: mrf,
       requestor_id: user.id,
       department: department.name,
       machine_name: machine,
+      work_category: category,
+      machine_id: category === "equipment" ? machineId : null,
+      work_location: location,
       request_type: type,
       description,
       downtime_applicable: downtime,
