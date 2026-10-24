@@ -328,3 +328,12 @@ Object.assign(translations, {
     "ne": "गणनामा तपाईंको खाताले देख्न सक्ने सबै MRF समावेश छन्, मिति फिल्टर छैन। खुला MRF मा पठाइएका, विभाग प्रमुखबाट स्वीकृत, काम भइरहेका, पार्टपुर्जा पर्खिरहेका, अनुगमन आवश्यक, मर्मत सम्पन्न र हस्तान्तरण बाँकी अनुरोध पर्छन्। चरणका गणना खुला MRF को कुलमा पनि समावेश छन्। अद्यावधिक गर्न रिफ्रेस गर्नुहोस्।"
   }
 });
+
+// PM dashboard schedule description
+Object.assign(translations, {
+  "View equipment schedules, due dates, and assigned teams.": {
+    ms: "Lihat jadual peralatan, tarikh perlu dan pasukan yang ditugaskan.",
+    zh: "查看设备保养计划、到期日期及负责团队。",
+    ne: "उपकरण तालिका, देय मिति र तोकिएका टोलीहरू हेर्नुहोस्।",
+  },
+});

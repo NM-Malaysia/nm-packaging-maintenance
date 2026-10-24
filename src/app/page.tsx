@@ -33,7 +33,7 @@ const features = [
     icon: "📅",
     title: "Preventive Maintenance",
     description:
-      "Manage scheduled inspections, checklists, and reminders.",
+      "View equipment schedules, due dates, and assigned teams.",
   },
   {
     icon: "📦",
@@ -237,6 +237,9 @@ const requestLoadError =
         <section className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {features
   .filter((feature) => {
+  if (feature.title === "Preventive Maintenance") {
+    return canOpenMaintenance;
+  }
   if (feature.title === "Parts Follow-up & MIV") {
     return canManageParts;
   }
@@ -290,6 +293,11 @@ const requestLoadError =
                     {t("Available to maintenance staff")}
                   </span>
                 )
+              ) : feature.title === "Preventive Maintenance" ? (
+                <Link href="/preventive-maintenance"
+                  className="mt-5 inline-block font-semibold text-blue-700 hover:underline">
+                  {t("Preventive Maintenance")} →
+                </Link>
               ) : feature.title === "Parts Follow-up & MIV" ? (
                 <Link href="/parts-followup"
                   className="mt-5 inline-block font-semibold text-blue-700 hover:underline">
