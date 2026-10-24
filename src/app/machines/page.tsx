@@ -231,6 +231,16 @@ async function Content({ searchParams }: { searchParams: Promise<Query> }) {
                   <p className="mt-2 text-sm">{t("Location")}: {machine.location}</p>
                 )}
                 {machine.notes && <p className="mt-2 whitespace-pre-wrap break-words">{machine.notes}</p>}
+                {["admin", "maintenance_supervisor", "maintenance_technician",
+                  "maintenance_clerk"].includes(employee.role) && (
+                  <Link href={`/machines/${machine.id}`}
+                    className="mt-4 inline-block font-semibold text-blue-700 hover:underline">
+                    {{ en: "View maintenance history →",
+                       ms: "Lihat sejarah penyelenggaraan →",
+                       zh: "查看维修历史 →",
+                       ne: "मर्मत इतिहास हेर्नुहोस् →" }[language]}
+                  </Link>
+                )}
                 {canManage && !departmentResult.error && (
                   <details className="mt-4 border-t pt-4">
                     <summary className="cursor-pointer font-semibold text-blue-700">
