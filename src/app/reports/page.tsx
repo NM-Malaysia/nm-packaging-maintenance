@@ -2,6 +2,7 @@ import DashboardNavigation from "../DashboardNavigation";
 import { getMyLanguage } from "@/utils/language";
 import { reportText } from "@/utils/reportTranslations";
 import PartsReport from "./PartsReport";
+import EquipmentReport, { type EquipmentBreakdownData } from "./EquipmentReport";
 import Link from "next/link";
 import { Suspense } from "react";
 import { connection } from "next/server";
@@ -9,7 +10,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 
 type Query = Record<string, string | string[] | undefined>;
-type Report = {
+type Report = EquipmentBreakdownData & {
   generated_at: string;
   summary: {
     total: number;
@@ -230,6 +231,7 @@ async function Reports({ searchParams }: { searchParams: Promise<Query> }) {
               </div>
             </section>
 
+            <EquipmentReport report={report} language={language} />
             <PartsReport from={from} to={to} />
 
             <p className="mt-5 text-sm text-slate-600">{t("Lead times use elapsed calendar hours, including waiting and pauses. Missing or invalid timestamps are excluded from averages. Downtime totals sum individual MRF records and may overlap on the same machine; they are not plant availability. Each MRF currently records one downtime interval.")}</p>
