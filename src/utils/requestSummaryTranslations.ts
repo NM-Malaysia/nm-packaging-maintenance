@@ -52,3 +52,12 @@ const translations: Record<string, Record<string, string>> = {
 export function requestSummaryText(language: Language, text: string): string {
   return language === "en" ? text : translations[text]?.[language] ?? text;
 }
+
+// Maintenance work category filter
+Object.assign(translations, {
+  "All work categories": {
+    ms: "Semua kategori kerja",
+    zh: "所有工作类别",
+    ne: "सबै कामका श्रेणीहरू",
+  },
+});

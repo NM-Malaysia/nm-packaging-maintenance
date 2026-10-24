@@ -138,6 +138,8 @@ async function MaintenanceList({ searchParams }: { searchParams: Promise<Query> 
   const q = value("q").trim().slice(0, 100);
   const department = value("department").trim().slice(0, 100);
   const status = value("status");
+  const category = ["equipment", "facilities", "other"].includes(value("category"))
+    ? value("category") : "";
   const priority = /^[1-4]$/.test(value("priority"))
     ? value("priority") : "";
   const sort = Object.keys(sortLabels).includes(value("sort"))
@@ -159,7 +161,7 @@ async function MaintenanceList({ searchParams }: { searchParams: Promise<Query> 
     : uuid.test(value("member")) ? value("member") : "";
 
   const saved = new URLSearchParams();
-  for (const key of ["q", "tab", "status", "department", "member", "from", "to", "priority", "sort"]) {
+  for (const key of ["q", "tab", "status", "department", "member", "from", "to", "priority", "sort", "category"]) {
     const item = value(key);
     if (item) saved.set(key, item);
   }
@@ -185,6 +187,7 @@ async function MaintenanceList({ searchParams }: { searchParams: Promise<Query> 
     { count: "exact" }
   ).in("status", statuses);
 
+  if (category) query = query.eq("work_category", category);
   if (member) query = query.eq("request_team_members.employee_id", member);
   if (status && statuses.includes(status)) query = query.eq("status", status);
 
@@ -297,6 +300,15 @@ async function MaintenanceList({ searchParams }: { searchParams: Promise<Query> 
         <form action="/maintenance" method="get"
           className="mt-5 grid gap-4 rounded-xl border bg-white p-5 sm:grid-cols-2 lg:grid-cols-4">
           <input type="hidden" name="tab" value={tab} />
+          <label className="min-w-0 text-sm font-medium text-slate-900">
+            {t("Work category")}
+            <select name="category" defaultValue={category} className={field}>
+              <option value="">{t("All work categories")}</option>
+              {Object.entries(categoryLabels).map(([key, label]) => (
+                <option key={key} value={key}>{t(label)}</option>
+              ))}
+            </select>
+          </label>
           <label className="min-w-0 text-sm font-medium text-slate-900">{t("Priority")}
             <select name="priority" defaultValue={priority} className={field}>
               <option value="">{t("All priorities")}</option>
