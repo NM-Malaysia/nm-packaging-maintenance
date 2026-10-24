@@ -1,3 +1,4 @@
+import { requestSummaryText } from "@/utils/requestSummaryTranslations";
 import DashboardNavigation from "../DashboardNavigation";
 import { getMyLanguage } from "@/utils/language";
 import { hodApprovalText } from "@/utils/hodApprovalTranslations";
@@ -78,14 +79,22 @@ async function ApprovalContent({ searchParams }: Props) {
   if (!["department_hod", "admin"].includes(employee.role)) redirect("/");
 
   const language = await getMyLanguage();
-  const t = (text: string) => hodApprovalText(language, text);
+  const t = (text: string) => {
+    const summary = requestSummaryText(language, text);
+    return summary !== text ? summary : hodApprovalText(language, text);
+  };
+  const categoryLabels: Record<string, string> = {
+    equipment: "Machine / Equipment",
+    facilities: "Building / Facilities",
+    other: "Other Maintenance Work",
+  };
 
   const { result } = await searchParams;
 
   // Existing RLS limits which requests this employee can see.
   const { data: requests, error } = await supabase
     .from("maintenance_requests")
-    .select("id, mrf_number, machine_name, department, description, request_type, submitted_at, downtime_applicable, downtime_started_at")
+    .select("id, mrf_number, machine_name, work_category, work_location, department, description, request_type, submitted_at, downtime_applicable, downtime_started_at")
     .eq("status", "submitted")
     .order("submitted_at")
     .limit(100);
@@ -129,7 +138,25 @@ async function ApprovalContent({ searchParams }: Props) {
               <section key={request.id} className="rounded-xl bg-white p-6 shadow-sm">
                 <h2 className="text-xl font-bold">MRF {request.mrf_number}</h2>
                 <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
-                  <div><dt className="font-semibold">{t("Machine")}</dt><dd>{request.machine_name}</dd></div>
+                  <div>
+                    <dt className="font-semibold">{t("Work category")}</dt>
+                    <dd>{t(categoryLabels[request.work_category ?? ""] ?? "Not specified")}</dd>
+                  </div>
+                  <div>
+                    <dt className="font-semibold">
+                      {t(request.work_category === "equipment"
+                        ? "Machine / Equipment"
+                        : request.work_category === "facilities" || request.work_category === "other"
+                        ? "Work subject" : "Equipment / Work subject")}
+                    </dt>
+                    <dd className="break-words">{request.machine_name}</dd>
+                  </div>
+                  <div>
+                    <dt className="font-semibold">{t("Work location")}</dt>
+                    <dd className="whitespace-pre-wrap break-words">
+                      {request.work_location || t("Not recorded")}
+                    </dd>
+                  </div>
                   <div><dt className="font-semibold">{t("Department")}</dt><dd>{request.department}</dd></div>
                   <div><dt className="font-semibold">{t("Request type")}</dt><dd className="capitalize">{t(request.request_type)}</dd></div>
                   <div>
