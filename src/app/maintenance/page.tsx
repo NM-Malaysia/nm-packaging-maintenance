@@ -1,6 +1,7 @@
 import DashboardNavigation from "../DashboardNavigation";
 import { getMyLanguage } from "@/utils/language";
 import { maintenanceText } from "@/utils/maintenanceTranslations";
+import { requestSummaryText } from "@/utils/requestSummaryTranslations";
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import { maintenanceBack } from "./maintenanceNavigation";
@@ -57,6 +58,8 @@ type RequestRow = {
   id: string;
   mrf_number: string;
   machine_name: string;
+  work_category: string | null;
+  work_location: string;
   department: string;
   description: string;
   status: string;
@@ -118,8 +121,16 @@ async function MaintenanceList({ searchParams }: { searchParams: Promise<Query> 
 
 
   const language = await getMyLanguage();
-  const t = (text: string, values: Record<string, string | number> = {}) =>
-    maintenanceText(language, text, values);
+  const t = (text: string, values: Record<string, string | number> = {}) => {
+    const summary = requestSummaryText(language, text);
+    return summary !== text ? summary : maintenanceText(language, text, values);
+  };
+
+  const categoryLabels: Record<string, string> = {
+    equipment: "Machine / Equipment",
+    facilities: "Building / Facilities",
+    other: "Other Maintenance Work",
+  };
 
   const raw = await searchParams;
   const value = (key: string) => typeof raw[key] === "string" ? raw[key] as string : "";
@@ -168,7 +179,7 @@ async function MaintenanceList({ searchParams }: { searchParams: Promise<Query> 
     : tab === "completed" ? ["repair_completed", "handover_pending", "closed"]
     : active;
 
-  const columns = "id,mrf_number,machine_name,department,description,status,submitted_at,priority,mrf_last_activity,mrf_in_progress_since";
+  const columns = "id,mrf_number,machine_name,work_category,work_location,department,description,status,submitted_at,priority,mrf_last_activity,mrf_in_progress_since";
   let query = supabase.from("maintenance_requests").select(
     member ? columns + ",request_team_members!inner(employee_id)" : columns,
     { count: "exact" }
@@ -396,7 +407,16 @@ async function MaintenanceList({ searchParams }: { searchParams: Promise<Query> 
                           <Link href={href} className="font-bold text-blue-700 hover:underline">
                             {request.mrf_number} · {request.machine_name}
                           </Link>
-                          <p className="mt-1 line-clamp-2 max-w-sm text-slate-500">{request.description}</p>
+                          <p className="mt-2">
+                            <span className="inline-block rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">
+                              {t(categoryLabels[request.work_category ?? ""] ?? "Not specified")}
+                            </span>
+                          </p>
+                          <p className="mt-2 max-w-sm break-words text-xs text-slate-600">
+                            <span className="font-semibold">{t("Work location")}: </span>
+                            {request.work_location || t("Not recorded")}
+                          </p>
+                          <p className="mt-2 line-clamp-2 max-w-sm text-slate-500">{request.description}</p>
                         </td>
                         <td className="px-4 py-4">{request.department}</td>
                         <td className="px-4 py-4">
