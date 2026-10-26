@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import DashboardNavigation from "../DashboardNavigation";
 import { createClient } from "@/utils/supabase/server";
 import { getMyLanguage } from "@/utils/language";
-import { machineText } from "@/utils/machineTranslations";
+import { assetRegisterText as machineText } from "@/utils/assetRegisterTranslations";
 
 type Query = { page?: string; result?: string };
 type Department = { id: string; name: string; is_active: boolean };
@@ -82,13 +82,13 @@ function EquipmentFields({ machine, departments, page, t }: {
       <input type="hidden" name="page" value={page} />
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block min-w-0 text-sm font-medium">
-          {t("Machine / equipment code")} *
+          {t("Asset code")} *
           <input name="machine_code" required maxLength={50}
             pattern="[A-Za-z0-9_-]+"
             defaultValue={machine?.machine_code ?? ""} className={field} />
         </label>
         <label className="block min-w-0 text-sm font-medium">
-          {t("Machine / equipment name")} *
+          {t("Asset name")} *
           <input name="machine_name" required maxLength={200}
             defaultValue={machine?.machine_name ?? ""} className={field} />
         </label>
@@ -126,7 +126,7 @@ function EquipmentFields({ machine, departments, page, t }: {
       </p>
       <button type="submit"
         className="rounded-lg bg-blue-700 px-5 py-3 font-semibold text-white">
-        {t("Save equipment")}
+        {t("Save asset")}
       </button>
     </>
   );
@@ -167,19 +167,19 @@ async function Content({ searchParams }: { searchParams: Promise<Query> }) {
   const departments: Department[] = departmentResult.data ?? [];
   const names = new Map(departments.map(d => [d.id, d.name]));
   const messages: Record<string, string> = {
-    saved: "Equipment saved.",
-    invalid: "Check the equipment details.",
-    duplicate: "This equipment code already exists.",
-    failed: "Equipment could not be saved. Refresh and try again.",
+    saved: "Asset saved.",
+    invalid: "Check the asset details.",
+    duplicate: "This asset code already exists.",
+    failed: "Asset could not be saved. Refresh and try again.",
   };
 
   return (
     <main className="min-h-screen bg-slate-100 text-slate-900">
       <DashboardNavigation name={employee.full_name} role={employee.role} />
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        <h1 className="text-3xl font-bold">{t("Machine Register")}</h1>
+        <h1 className="text-3xl font-bold">{t("Equipment & Facilities Register")}</h1>
         <p className="mt-2 text-slate-600">
-          {t("Register equipment before selecting it in a new MRF.")}
+          {t("Register machines, air conditioners and facilities for maintenance requests and PM planning.")}
         </p>
         {params.result && messages[params.result] && (
           <p role="status" className="mt-4 rounded-lg border bg-white p-4">
@@ -194,7 +194,7 @@ async function Content({ searchParams }: { searchParams: Promise<Query> }) {
         {canManage && !departmentResult.error && (
           <details className="mt-6 rounded-xl border bg-white p-5">
             <summary className="cursor-pointer font-semibold text-blue-700">
-              + {t("Add equipment")}
+              + {t("Add asset")}
             </summary>
             <form action={saveMachine} className="mt-4 space-y-4">
               <EquipmentFields departments={departments} page={page} t={t} />
@@ -202,13 +202,13 @@ async function Content({ searchParams }: { searchParams: Promise<Query> }) {
           </details>
         )}
 
-        <h2 className="mt-8 text-xl font-bold">{t("Equipment records")}</h2>
+        <h2 className="mt-8 text-xl font-bold">{t("Asset records")}</h2>
         <p className="mt-2 text-sm text-slate-600">
-          {t("Inactive equipment remains in the register for history.")}
+          {t("Inactive assets remain in the register for history.")}
         </p>
         {machines.error ? (
           <p role="alert" className="mt-4 text-red-700">
-            {t("Equipment could not be loaded.")}
+            {t("Assets could not be loaded.")}
           </p>
         ) : (
           <div className="mt-4 space-y-4">
@@ -244,7 +244,7 @@ async function Content({ searchParams }: { searchParams: Promise<Query> }) {
                 {canManage && !departmentResult.error && (
                   <details className="mt-4 border-t pt-4">
                     <summary className="cursor-pointer font-semibold text-blue-700">
-                      {t("Edit equipment")}
+                      {t("Edit asset")}
                     </summary>
                     <form action={saveMachine} className="mt-4 space-y-4">
                       <EquipmentFields machine={machine} departments={departments}
@@ -255,7 +255,7 @@ async function Content({ searchParams }: { searchParams: Promise<Query> }) {
               </article>
             ))}
             {!machines.data?.length && (
-              <p className="rounded-xl bg-white p-5">{t("No equipment records available.")}</p>
+              <p className="rounded-xl bg-white p-5">{t("No asset records available.")}</p>
             )}
           </div>
         )}

@@ -331,9 +331,26 @@ async function Content({ searchParams }: Props) {
         <Link href="/" className="text-blue-700 hover:underline">← {t("Dashboard")}</Link>
         <h1 className="mt-5 text-3xl font-bold">{t("Preventive Maintenance")}</h1>
         <p className="mt-2 text-slate-600">{t("Equipment schedules and assigned maintenance teams.")}</p>
-        <p className="mt-3 text-sm text-slate-600">
-          {t("This page manages schedules only. Completion checklists and service records will be added next. Due dates do not advance automatically yet.")}
-        </p>
+        {/* Annual PM master plan entry */}
+        <section className="mt-5 rounded-xl border border-blue-200 bg-blue-50 p-5">
+          <Link href="/preventive-maintenance/master-plan"
+            className="inline-flex rounded-lg bg-blue-700 px-5 py-3 font-semibold text-white hover:bg-blue-800">
+            {{
+              en: "Open annual PM Master Plan →",
+              ms: "Buka Pelan Induk PM Tahunan →",
+              zh: "打开年度预防性保养总计划 →",
+              ne: "वार्षिक PM मुख्य योजना खोल्नुहोस् →"
+            }[language]}
+          </Link>
+          <p className="mt-3 text-sm text-slate-700">
+            {{
+              en: "Plan activities and checklists across January to December for machines and facilities.",
+              ms: "Rancang aktiviti dan senarai semak dari Januari hingga Disember untuk mesin dan kemudahan.",
+              zh: "为机器及设施制定一月至十二月的保养活动与检查清单。",
+              ne: "मेसिन र सुविधाहरूका लागि जनवरीदेखि डिसेम्बरसम्मका गतिविधि र जाँचसूची योजना बनाउनुहोस्।"
+            }[language]}
+          </p>
+        </section>
         {params.start === "failed" && <p role="alert" className="mt-4 rounded-lg border bg-white p-4 text-red-700">
           {pmServiceText(language, "Unable to start service. Check the checklist, equipment and assigned team, then retry.")}
         </p>}
