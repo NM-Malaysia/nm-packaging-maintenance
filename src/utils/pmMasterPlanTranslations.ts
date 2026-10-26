@@ -236,3 +236,72 @@ Object.assign(words, {
     "ne": "परिवर्तन सुरक्षित भएन। रिफ्रेस गरी फेरि प्रयास गर्नुहोस्। सेवा इतिहास भएका गतिविधिको सम्पत्ति वा तालिका बदल्न मिल्दैन।"
   }
 });
+
+// Annual activity checklists
+Object.assign(words, {
+  "View / Edit checklist": {
+    "ms": "Lihat / Sunting senarai semak",
+    "zh": "查看／编辑检查清单",
+    "ne": "जाँचसूची हेर्नुहोस् / सम्पादन गर्नुहोस्"
+  },
+  "Checklist version": {
+    "ms": "Versi senarai semak",
+    "zh": "检查清单版本",
+    "ne": "जाँचसूची संस्करण"
+  },
+  "No checklist has been set up for this activity.": {
+    "ms": "Senarai semak belum ditetapkan untuk aktiviti ini.",
+    "zh": "此项目尚未设置检查清单。",
+    "ne": "यस गतिविधिको जाँचसूची अझै तयार गरिएको छैन।"
+  },
+  "Add checklist": {
+    "ms": "Tambah senarai semak",
+    "zh": "添加检查清单",
+    "ne": "जाँचसूची थप्नुहोस्"
+  },
+  "Edit checklist": {
+    "ms": "Sunting senarai semak",
+    "zh": "编辑检查清单",
+    "ne": "जाँचसूची सम्पादन गर्नुहोस्"
+  },
+  "Checklist items": {
+    "ms": "Item senarai semak",
+    "zh": "检查项目",
+    "ne": "जाँच बुँदाहरू"
+  },
+  "Save checklist": {
+    "ms": "Simpan senarai semak",
+    "zh": "保存检查清单",
+    "ne": "जाँचसूची सुरक्षित गर्नुहोस्"
+  },
+  "Enter one item per line. Up to 100 items, 500 characters each.": {
+    "ms": "Masukkan satu item setiap baris. Maksimum 100 item, 500 aksara setiap item.",
+    "zh": "每行输入一个项目。最多 100 项，每项最多 500 个字符。",
+    "ne": "प्रत्येक पङ्क्तिमा एउटा बुँदा लेख्नुहोस्। बढीमा १०० बुँदा, प्रत्येक ५०० अक्षर।"
+  },
+  "Changes create a new checklist version. Annual planned dates remain unchanged.": {
+    "ms": "Perubahan mencipta versi senarai semak baharu. Tarikh dirancang tahunan tidak berubah.",
+    "zh": "修改后将创建新的检查清单版本，年度计划日期保持不变。",
+    "ne": "परिवर्तनले नयाँ जाँचसूची संस्करण बनाउँछ। वार्षिक योजनाबद्ध मिति बदलिँदैनन्।"
+  },
+  "Checklist could not be loaded. Please refresh.": {
+    "ms": "Senarai semak tidak dapat dimuatkan. Sila muat semula.",
+    "zh": "无法加载检查清单，请刷新。",
+    "ne": "जाँचसूची लोड भएन। कृपया रिफ्रेस गर्नुहोस्।"
+  },
+  "Enter 1 to 100 checklist items, up to 500 characters each.": {
+    "ms": "Masukkan 1 hingga 100 item, maksimum 500 aksara setiap item.",
+    "zh": "请输入 1 至 100 项，每项最多 500 个字符。",
+    "ne": "१ देखि १०० जाँच बुँदा लेख्नुहोस्, प्रत्येक बढीमा ५०० अक्षर।"
+  },
+  "Another user changed this checklist. Refresh and check the latest version before saving.": {
+    "ms": "Pengguna lain telah mengubah senarai semak ini. Muat semula dan semak versi terkini sebelum menyimpan.",
+    "zh": "其他用户已修改此检查清单。请刷新并检查最新版本后再保存。",
+    "ne": "अर्को प्रयोगकर्ताले जाँचसूची परिवर्तन गरेका छन्। सुरक्षित गर्नुअघि रिफ्रेस गरी नयाँ संस्करण जाँच्नुहोस्।"
+  },
+  "Checklist was not saved. Refresh and try again.": {
+    "ms": "Senarai semak tidak disimpan. Muat semula dan cuba lagi.",
+    "zh": "检查清单未保存。请刷新后重试。",
+    "ne": "जाँचसूची सुरक्षित भएन। रिफ्रेस गरी फेरि प्रयास गर्नुहोस्।"
+  }
+});

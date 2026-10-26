@@ -8,6 +8,7 @@ import { createClient } from "@/utils/supabase/server";
 import { getMyLanguage } from "@/utils/language";
 import { pmMasterPlanText } from "@/utils/pmMasterPlanTranslations";
 import AnnualActivityControls from "./AnnualActivityControls";
+import AnnualActivityChecklist from "./AnnualActivityChecklist";
 
 type Props = {
   searchParams: Promise<{ year?: string; page?: string; result?: string }>;
@@ -152,6 +153,9 @@ async function Content({ searchParams }: Props) {
   );
   const messages: Record<string, string> = {
     saved: "Saved successfully.",
+    checklist_invalid: "Enter 1 to 100 checklist items, up to 500 characters each.",
+    checklist_changed: "Another user changed this checklist. Refresh and check the latest version before saving.",
+    checklist_failed: "Checklist was not saved. Refresh and try again.",
     manage_invalid: "Enter valid details, a reason and confirmation.",
     manage_failed: "Change was not saved. Refresh and retry. Activities with service history cannot have their asset or schedule replaced.",
     invalid: "Check the required fields and dates.",
@@ -296,6 +300,9 @@ async function Content({ searchParams }: Props) {
                         </th>
                         <td className="min-w-48 p-3">
                           <p className="font-semibold">{activity.title}</p>
+                          <AnnualActivityChecklist activityId={activity.id}
+                            canManage={canManage} year={year} page={page}
+                            language={language} />
                           {canManage && (
                             <AnnualActivityControls activity={activity}
                               assets={asset && !choices.some(item => item.id === asset.id)
