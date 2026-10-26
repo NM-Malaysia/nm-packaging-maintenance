@@ -1,3 +1,4 @@
+import AnnualPMDate, { loadPMProgress } from "./AnnualPMDate";
 import { Suspense } from "react";
 import Link from "next/link";
 import { connection } from "next/server";
@@ -145,6 +146,7 @@ async function Content({ searchParams }: Props) {
   const choices: Asset[] = choicesResult.data ?? [];
   const tooManyAssets = (choicesResult.count ?? 0) > 1000;
   const dates = dateResult.data ?? [];
+  const pmProgress = await loadPMProgress(dates.map(date => date.id));
   const loadError = Boolean(planResult.error || activityResult.error || dateResult.error);
   const months = Array.from({ length: 12 }, (_, month) =>
     new Intl.DateTimeFormat(language === "en" ? "en-MY" : language, {
@@ -321,11 +323,11 @@ async function Content({ searchParams }: Props) {
                           );
                           return <td key={month} className="p-3 text-center">
                             {entries.length ? entries.map(date => (
-                              <span key={date.id}
-                                title={`${t("Planned dates")}: ${date.planned_date}`}
-                                className="inline-block rounded-lg bg-blue-50 px-3 py-2 font-semibold text-blue-800">
-                                {Number(date.planned_date.slice(8, 10))}
-                              </span>
+                              <AnnualPMDate key={date.id}
+                                occurrenceId={date.id} plannedDate={date.planned_date}
+                                page={page} language={language}
+                                progress={pmProgress.items.get(date.id)}
+                                unavailable={pmProgress.error} />
                             )) : <span className="text-slate-300">—</span>}
                           </td>;
                         })}

@@ -1,3 +1,4 @@
+import AnnualPMReport from "./AnnualPMReport";
 import DashboardNavigation from "../DashboardNavigation";
 import { getMyLanguage } from "@/utils/language";
 import { reportText } from "@/utils/reportTranslations";
@@ -114,6 +115,8 @@ async function Reports({ searchParams }: { searchParams: Promise<Query> }) {
         <p className="mt-2 text-slate-600">
           {employee.full_name} · {t("Maintenance performance overview")}
         </p>
+
+        <AnnualPMReport language={language} query={raw} />
 
         <form action="/reports" method="get"
           className="mt-6 grid gap-4 rounded-xl border bg-white p-5 sm:grid-cols-3">

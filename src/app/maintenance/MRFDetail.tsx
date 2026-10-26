@@ -1,3 +1,4 @@
+import MRFPMChecklist from "./MRFPMChecklist";
 import { requestSummaryText } from "@/utils/requestSummaryTranslations";
 import DashboardNavigation from "../DashboardNavigation";
 import { getMyLanguage } from "@/utils/language";
@@ -374,6 +375,9 @@ async function MaintenanceContent({
                   {selectedIds.has(user.id) && workMap.has(request.id) && (
                     <WorkDetails requestId={request.id} status={request.status} />
                   )}
+
+                  <MRFPMChecklist requestId={request.id}
+                    language={language} result={params.result} />
 
                   <TemporaryRepair requestId={request.id} status={request.status} />
 

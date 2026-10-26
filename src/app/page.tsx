@@ -1,3 +1,4 @@
+import PMDashboardSummary from "./PMDashboardSummary";
 import { getMyLanguage } from "@/utils/language";
 import { dashboardText } from "@/utils/dashboardTranslations";
 import MyActions from "./MyActions";
@@ -58,7 +59,11 @@ const features = [
 
 
 // This component checks authentication on the server.
-async function ProtectedDashboard() {
+type DashboardQuery = { pm_year?: string | string[] };
+
+async function ProtectedDashboard({
+  searchParams,
+}: { searchParams: Promise<DashboardQuery> }) {
 // Wait for an actual request before Supabase authentication.
   await connection();
 
@@ -182,6 +187,11 @@ const requestLoadError =
 
         
         <MyActions compact />
+
+        {canOpenMaintenance && (
+          <PMDashboardSummary language={language}
+            searchParams={searchParams} />
+        )}
 
         {allowedRoles.includes(employee.role) && (
           <nav aria-label={t("Quick actions")}
@@ -432,7 +442,9 @@ const requestLoadError =
 
 // Suspense allows Next.js to wait for the authentication check
 // instead of attempting to prerender it.
-export default function Home() {
+export default function Home({
+  searchParams,
+}: { searchParams: Promise<DashboardQuery> }) {
   return (
     <Suspense
       fallback={
@@ -443,7 +455,7 @@ export default function Home() {
         </main>
       }
     >
-      <ProtectedDashboard />
+      <ProtectedDashboard searchParams={searchParams} />
     </Suspense>
   );
 }
