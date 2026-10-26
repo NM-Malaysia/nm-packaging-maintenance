@@ -7,6 +7,7 @@ import DashboardNavigation from "../../DashboardNavigation";
 import { createClient } from "@/utils/supabase/server";
 import { getMyLanguage } from "@/utils/language";
 import { pmMasterPlanText } from "@/utils/pmMasterPlanTranslations";
+import AnnualActivityControls from "./AnnualActivityControls";
 
 type Props = {
   searchParams: Promise<{ year?: string; page?: string; result?: string }>;
@@ -109,9 +110,10 @@ async function Content({ searchParams }: Props) {
 
   const activityResult = plan && !planResult.error
     ? await supabase.from("pm_annual_activities")
-        .select("id, machine_id, title, instructions, frequency_months, first_planned_date",
+        .select("id, machine_id, title, instructions, frequency_months, first_planned_date, revision",
           { count: "exact" })
         .eq("annual_plan_id", plan.id)
+        .eq("is_removed", false)
         .order("machine_id").order("title").order("id")
         .range((page - 1) * 50, page * 50 - 1)
     : { data: [], error: null, count: 0 };
@@ -125,6 +127,7 @@ async function Content({ searchParams }: Props) {
       ? supabase.from("pm_annual_occurrences")
           .select("id, activity_id, planned_date")
           .in("activity_id", activities.map(item => item.id))
+          .eq("is_cancelled", false)
           .order("planned_date").order("id").range(0, 599)
       : Promise.resolve({ data: [], error: null }),
     assetIds.length
@@ -149,6 +152,8 @@ async function Content({ searchParams }: Props) {
   );
   const messages: Record<string, string> = {
     saved: "Saved successfully.",
+    manage_invalid: "Enter valid details, a reason and confirmation.",
+    manage_failed: "Change was not saved. Refresh and retry. Activities with service history cannot have their asset or schedule replaced.",
     invalid: "Check the required fields and dates.",
     duplicate: "This activity already exists for this asset in the annual plan.",
     failed: "The change was not saved. Refresh and try again.",
@@ -165,7 +170,7 @@ async function Content({ searchParams }: Props) {
           <label className="font-medium">
             {t("Year")}
             <input name="year" type="number" min={2020} max={2100}
-              required defaultValue={year} className={field} />
+              required defaultValue={year} key={year} className={field} />
           </label>
           <button className="rounded-lg bg-blue-700 px-5 py-3 font-semibold text-white">
             {t("Show plan")}
@@ -291,6 +296,13 @@ async function Content({ searchParams }: Props) {
                         </th>
                         <td className="min-w-48 p-3">
                           <p className="font-semibold">{activity.title}</p>
+                          {canManage && (
+                            <AnnualActivityControls activity={activity}
+                              assets={asset && !choices.some(item => item.id === asset.id)
+                                ? [asset, ...choices] : choices}
+                              canEdit={!choicesResult.error && !tooManyAssets && !namesResult.error}
+                              year={year} page={page} language={language} />
+                          )}
                           {activity.instructions && <p className="mt-2 whitespace-pre-wrap break-words text-xs text-slate-600">
                             {activity.instructions}
                           </p>}

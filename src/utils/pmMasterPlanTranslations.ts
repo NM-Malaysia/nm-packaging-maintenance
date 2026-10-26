@@ -172,3 +172,67 @@ const words: Record<string, Record<string, string>> = {
 export function pmMasterPlanText(language: Language, text: string): string {
   return language === "en" ? text : words[text]?.[language] ?? text;
 }
+
+// Annual activity management
+Object.assign(words, {
+  "Edit activity": {
+    "ms": "Sunting aktiviti",
+    "zh": "编辑项目",
+    "ne": "गतिविधि सम्पादन गर्नुहोस्"
+  },
+  "Remove activity": {
+    "ms": "Keluarkan aktiviti",
+    "zh": "移除项目",
+    "ne": "गतिविधि हटाउनुहोस्"
+  },
+  "Reason for change": {
+    "ms": "Sebab perubahan",
+    "zh": "修改原因",
+    "ne": "परिवर्तनको कारण"
+  },
+  "Reason for removal": {
+    "ms": "Sebab dikeluarkan",
+    "zh": "移除原因",
+    "ne": "हटाउने कारण"
+  },
+  "Save changes": {
+    "ms": "Simpan perubahan",
+    "zh": "保存修改",
+    "ne": "परिवर्तन सुरक्षित गर्नुहोस्"
+  },
+  "Confirm removal": {
+    "ms": "Sahkan pengeluaran",
+    "zh": "确认移除",
+    "ne": "हटाउने पुष्टि गर्नुहोस्"
+  },
+  "I confirm these changes.": {
+    "ms": "Saya mengesahkan perubahan ini.",
+    "zh": "我确认以上修改。",
+    "ne": "म यी परिवर्तन पुष्टि गर्छु।"
+  },
+  "I confirm removal of this activity.": {
+    "ms": "Saya mengesahkan aktiviti ini dikeluarkan.",
+    "zh": "我确认移除此项目。",
+    "ne": "म यो गतिविधि हटाउने पुष्टि गर्छु।"
+  },
+  "Changing the asset, interval or first date replaces unused planned dates. Previous dates remain in history.": {
+    "ms": "Menukar aset, sela atau tarikh pertama menggantikan tarikh dirancang yang belum digunakan. Tarikh terdahulu kekal dalam sejarah.",
+    "zh": "更改资产、周期或首次日期会替换尚未使用的计划日期，原日期仍保留在历史中。",
+    "ne": "सम्पत्ति, अन्तराल वा पहिलो मिति परिवर्तन गर्दा प्रयोग नभएका योजनाबद्ध मिति बदलिन्छन्। अघिल्ला मिति इतिहासमा रहन्छन्।"
+  },
+  "This removes the activity from the active plan and cancels its unused dates. History is retained.": {
+    "ms": "Ini mengeluarkan aktiviti daripada pelan aktif dan membatalkan tarikh yang belum digunakan. Sejarah dikekalkan.",
+    "zh": "此操作将从当前计划移除项目并取消未使用的日期，历史记录会保留。",
+    "ne": "यसले सक्रिय योजनाबाट गतिविधि हटाउँछ र प्रयोग नभएका मिति रद्द गर्छ। इतिहास सुरक्षित रहन्छ।"
+  },
+  "Enter valid details, a reason and confirmation.": {
+    "ms": "Masukkan butiran sah, sebab dan pengesahan.",
+    "zh": "请填写有效资料、原因，并勾选确认。",
+    "ne": "मान्य विवरण, कारण र पुष्टि दिनुहोस्।"
+  },
+  "Change was not saved. Refresh and retry. Activities with service history cannot have their asset or schedule replaced.": {
+    "ms": "Perubahan tidak disimpan. Muat semula dan cuba lagi. Aset atau jadual aktiviti dengan sejarah servis tidak boleh diganti.",
+    "zh": "修改未保存。请刷新后重试。已有保养记录的项目不能更换资产或计划日期安排。",
+    "ne": "परिवर्तन सुरक्षित भएन। रिफ्रेस गरी फेरि प्रयास गर्नुहोस्। सेवा इतिहास भएका गतिविधिको सम्पत्ति वा तालिका बदल्न मिल्दैन।"
+  }
+});
