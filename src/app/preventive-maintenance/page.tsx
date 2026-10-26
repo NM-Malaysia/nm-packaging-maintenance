@@ -5,11 +5,13 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import DashboardNavigation from "../DashboardNavigation";
 import PMChecklist from "./PMChecklist";
+import PMServicePanel from "./PMServicePanel";
+import { pmServiceText } from "@/utils/pmServiceTranslations";
 import { createClient } from "@/utils/supabase/server";
 import { getMyLanguage } from "@/utils/language";
 
 type Props = {
-  searchParams: Promise<{ page?: string; view?: string; result?: string }>;
+  searchParams: Promise<{ page?: string; view?: string; result?: string; start?: string }>;
 };
 type Plan = {
   id: string;
@@ -332,6 +334,9 @@ async function Content({ searchParams }: Props) {
         <p className="mt-3 text-sm text-slate-600">
           {t("This page manages schedules only. Completion checklists and service records will be added next. Due dates do not advance automatically yet.")}
         </p>
+        {params.start === "failed" && <p role="alert" className="mt-4 rounded-lg border bg-white p-4 text-red-700">
+          {pmServiceText(language, "Unable to start service. Check the checklist, equipment and assigned team, then retry.")}
+        </p>}
         {params.result && messages[params.result] && <p role="status" className="mt-4 rounded-lg border bg-white p-4">
           {t(messages[params.result])}
         </p>}
@@ -404,6 +409,12 @@ async function Content({ searchParams }: Props) {
                         ))}
                       </ul>
                     )}
+                    <PMServicePanel planId={plan.id}
+                      active={plan.is_active} language={language}
+                      canStart={canManage || (!teamResult.error && team.some(member =>
+                        member.employee_id === user.id &&
+                        ["maintenance_supervisor", "maintenance_technician"].includes(employee.role)
+                      ))} />
                     <PMChecklist planId={plan.id} canManage={canManage}
                       language={language} page={page} view={view} />
                     {canManage && !equipmentResult.error && !staffResult.error && !teamResult.error && (
