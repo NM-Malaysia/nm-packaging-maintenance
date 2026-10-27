@@ -351,6 +351,24 @@ async function Content({ searchParams }: Props) {
             }[language]}
           </p>
         </section>
+        <details className="mt-6 rounded-xl border border-slate-200 bg-white p-5">
+          <summary className="cursor-pointer font-semibold text-slate-700">
+            {{
+              en: "Previous PM schedules and records",
+              ms: "Jadual dan rekod PM terdahulu",
+              zh: "以前的保养计划和记录",
+              ne: "अघिल्ला PM तालिका र अभिलेखहरू"
+            }[language]}
+          </summary>
+          <p className="mt-3 text-sm text-slate-600">
+            {{
+              en: "For current PM work, use the annual PM Master Plan above.",
+              ms: "Untuk kerja PM semasa, gunakan Pelan Induk PM Tahunan di atas.",
+              zh: "目前的保养工作请使用上方的年度保养总计划。",
+              ne: "हालको PM कामका लागि माथिको वार्षिक PM मुख्य योजना प्रयोग गर्नुहोस्।"
+            }[language]}
+          </p>
+
         {params.start === "failed" && <p role="alert" className="mt-4 rounded-lg border bg-white p-4 text-red-700">
           {pmServiceText(language, "Unable to start service. Check the checklist, equipment and assigned team, then retry.")}
         </p>}
@@ -452,6 +470,7 @@ async function Content({ searchParams }: Props) {
             </nav>
           </>
         )}
+        </details>
       </div>
     </main>
   );
